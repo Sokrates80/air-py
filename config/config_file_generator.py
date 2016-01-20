@@ -8,6 +8,7 @@ Created on Sun Jan 19 23:32:24 2016
 Revision History:
 
 13-Dec-2015 Initial Release
+20-Jan-2016 Refactor to be compliant with PEP8
 
 """
 
