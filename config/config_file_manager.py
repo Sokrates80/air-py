@@ -11,35 +11,32 @@ Revision History:
 
 """
 
-import pyb
 import ujson
-from config.configFileGenerator import ConfigFileGenerator
+from config.config_file_generator import ConfigFileGenerator
+
 
 class ConfigFileManager:
-
     def __init__(self):
         self.CONFIG_FILE_NAME = 'config.json'
         self.configFile = None
-        self.loadConfigFile()
+        self.load_config_file()
         print('ConfigFileManager Started')
 
-    def loadConfigFile(self):
+    def load_config_file(self):
         try:
             f = open(self.CONFIG_FILE_NAME, 'r')
             self.configFile = ujson.loads(f.readall())
             f.close()
         except:
-            self.createDefaultConfig()
+            self.create_default_config()
 
-    def createDefaultConfig(self):
+    def create_default_config(self):
         conf = ConfigFileGenerator()
         try:
             f = open('config.json', 'w')
-            f.write(ujson.dumps(conf.getDefaultConfiFile()))
+            f.write(ujson.dumps(conf.get_default_config_file()))
             f.close()
         except:
-            c = 1 #TODO Log Error
+            c = 1  # TODO Log Error
 
-        return conf.getDefaultConfiFile()
-
-
+        return conf.get_default_config_file()

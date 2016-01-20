@@ -16,7 +16,7 @@ Revision History:
 import pyb
 from attitude.attitude_controller import AttitudeController
 from receiver.rc_controller import RCController
-from config.configFileManager import ConfigFileManager
+from config.config_file_manager import ConfigFileManager
 import micropython
 
 # for better callback related error reporting
