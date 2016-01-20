@@ -9,52 +9,56 @@ Created on Sun Dec 13 23:32:24 2015
 Revision History:
 
 13-Dec-2015 Initial Release
+20-Jan-2016 Refactor to be compliant with PEP8
  
 """
 
 import pyb
-import sys
-from attitude.attitudeController import AttitudeController
-from receiver.rcController import RCController
+from attitude.attitude_controller import AttitudeController
+from receiver.rc_controller import RCController
 from config.configFileManager import ConfigFileManager
 import micropython
 
-#for better callback related error reporting 
+# for better callback related error reporting
 micropython.alloc_emergency_exception_buf(100)
 
 updateLed = False
-updateRx = False
+update_rx = False
 
 led = pyb.LED(4)
 
-def statusLed(tim1):
+
+def status_led(tim1):
     global updateLed
-    updateLed=True
+    updateLed = True
     led.toggle()
-    
-def updateRxData(timRx):
-    global updateRx
-    updateRx = True
 
-def printReport():
-    r = rcCtrl.getReport()
-    sRep = str('Valid Frames: ') + str(r['Valid Frames']) + str(' - Lost Frames: ') + str(r['Lost Frames'])
-    sRep += str(' - CH1: ') + str(rcCtrl.getChannel(1)) + str(', CH2: ') + str(rcCtrl.getChannel(2))
-    sRep += str(', CH3: ') + str(rcCtrl.getChannel(3)) + str(', CH4: ') + str(rcCtrl.getChannel(4))
-    sRep += str(' - Failsafe: ') + str(rcCtrl.getLinkStatus())
 
-    print(sRep)
-    #sys.stdout.write(sRep + '    \r')
-  
-#Init Timer for status led and report  
+def update_rx_data(timRx):
+    global update_rx
+    update_rx = True
+
+
+def print_report():
+    r = rcCtrl.get_report()
+    s_rep = str('Valid Frames: ') + str(r['Valid Frames']) + str(' - Lost Frames: ') + str(r['Lost Frames'])
+    s_rep += str(' - CH1: ') + str(rcCtrl.get_channel(1)) + str(', CH2: ') + str(rcCtrl.get_channel(2))
+    s_rep += str(', CH3: ') + str(rcCtrl.get_channel(3)) + str(', CH4: ') + str(rcCtrl.get_channel(4))
+    s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
+
+    print(s_rep)
+    # sys.stdout.write(s_rep + '    \r')
+
+
+# Init Timer for status led and report
 tim1 = pyb.Timer(1)
 tim1.init(freq=1)
-tim1.callback(statusLed)
+tim1.callback(status_led)
 
-#Init Rx Timing at 300us (Frsky specific). TODO: Read RxTiming from Setting
+# Init Rx Timing at 300us (Frsky specific). TODO: Read RxTiming from Setting
 timRx = pyb.Timer(2)
 timRx.init(freq=2778)
-timRx.callback(updateRxData)
+timRx.callback(update_rx_data)
 
 print("\n\rAirPy v0.0.1 booting...\n\r")
 
@@ -62,23 +66,12 @@ cm = ConfigFileManager()
 config = cm.configFile
 rcCtrl = RCController()
 attitudeCtrl = AttitudeController()
-attitudeCtrl.setRcController(rcCtrl)
+attitudeCtrl.set_rc_controller(rcCtrl)
 
-while True: 
-    if updateRx == True:
-       rcCtrl.updateRxData()
-       updateRx = False
-    if updateLed == True:
-       printReport(); 
-       updateLed=False
-        
-    
-        
-    
-    
-
-
-
-
-
-
+while True:
+    if update_rx:
+        rcCtrl.update_rx_data()
+        update_rx = False
+    if updateLed:
+        print_report()
+        updateLed = False
