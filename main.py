@@ -17,6 +17,8 @@ import pyb
 from attitude.attitude_controller import AttitudeController
 from receiver.rc_controller import RCController
 from config.config_file_manager import ConfigFileManager
+from aplink.aplink_manager import APLinkManager
+from aplink.aplink_manager import ULScheduler
 import micropython
 
 # for better callback related error reporting
@@ -24,8 +26,14 @@ micropython.alloc_emergency_exception_buf(100)
 
 updateLed = False
 update_rx = False
+sendApLink = False
 
 led = pyb.LED(4)
+
+
+def send_byte(timApLink):
+    global sendApLink
+    sendApLink = True
 
 
 def status_led(tim1):
@@ -46,7 +54,8 @@ def print_report():
     s_rep += str(', CH3: ') + str(rcCtrl.get_channel(3)) + str(', CH4: ') + str(rcCtrl.get_channel(4))
     s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
 
-    print(s_rep)
+    #print(len(s_rep))
+    ulScheduler.add_msg(s_rep)
     # sys.stdout.write(s_rep + '    \r')
 
 
@@ -54,6 +63,10 @@ def print_report():
 tim1 = pyb.Timer(1)
 tim1.init(freq=1)
 tim1.callback(status_led)
+
+timApLink = pyb.Timer(4)
+timApLink.init(freq=100)
+timApLink.callback(send_byte)
 
 # Init Rx Timing at 300us (Frsky specific). TODO: Read RxTiming from Setting
 timRx = pyb.Timer(2)
@@ -65,6 +78,8 @@ print("\n\rAirPy v0.0.1 booting...\n\r")
 cm = ConfigFileManager()
 config = cm.configFile
 rcCtrl = RCController()
+aplm = APLinkManager()
+ulScheduler = aplm.UL
 attitudeCtrl = AttitudeController()
 attitudeCtrl.set_rc_controller(rcCtrl)
 
@@ -75,3 +90,8 @@ while True:
     if updateLed:
         print_report()
         updateLed = False
+    if sendApLink:
+        tmpByte = ulScheduler.read_queue()
+        if tmpByte is not None:
+            print(tmpByte)
+        sendApLink = False
