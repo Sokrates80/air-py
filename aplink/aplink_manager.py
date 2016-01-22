@@ -13,9 +13,9 @@ Revision History:
 """
 
 
-from aplink.ul_scheduler import ULScheduler
+from aplink.ul_mux import ULMux
 
 
 class APLinkManager:
     def __init__(self):
-        self.UL = ULScheduler()
+        self.UL = ULMux()

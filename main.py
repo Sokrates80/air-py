@@ -18,7 +18,8 @@ from attitude.attitude_controller import AttitudeController
 from receiver.rc_controller import RCController
 from config.config_file_manager import ConfigFileManager
 from aplink.aplink_manager import APLinkManager
-from aplink.aplink_manager import ULScheduler
+from aplink.aplink_manager import ULMux
+import binascii
 import micropython
 
 # for better callback related error reporting
@@ -47,6 +48,7 @@ def update_rx_data(timRx):
     update_rx = True
 
 
+# for debug
 def print_report():
     r = rcCtrl.get_report()
     s_rep = str('Valid Frames: ') + str(r['Valid Frames']) + str(' - Lost Frames: ') + str(r['Lost Frames'])
@@ -54,8 +56,7 @@ def print_report():
     s_rep += str(', CH3: ') + str(rcCtrl.get_channel(3)) + str(', CH4: ') + str(rcCtrl.get_channel(4))
     s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
 
-    #print(len(s_rep))
-    ulScheduler.add_msg(s_rep)
+    ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')
 
 
@@ -93,5 +94,5 @@ while True:
     if sendApLink:
         tmpByte = ulScheduler.read_queue()
         if tmpByte is not None:
-            print(tmpByte)
+            print(chr(tmpByte))
         sendApLink = False
