@@ -18,14 +18,15 @@ class ULMux:
     def __init__(self):
         # buffer to store msg in the queue
         self.msg_buffer = array.array('B', (0,)*1500)  # TODO: resize according with the link bit rate
+
         self.startIndex = 0
         self.endIndex = 0
         self.lostMsg = 0
         self.lock = False
 
     def add_msg(self, msg):
-        # print(self.startIndex)
-        self.lock = True
+
+        self.lock = True  # lock is used to prevent fragmentation of different messages
         if self.startIndex <= self.endIndex:
 
             if ((self.endIndex + len(msg)) % len(self.msg_buffer) < self.startIndex) or \

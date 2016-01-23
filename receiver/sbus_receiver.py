@@ -77,7 +77,7 @@ class SBUSReceiver:
         ch = 0
         bit_in_channel = 0
 
-        for i in range(0, 175):  # TODO Generalzation
+        for i in range(0, 175):  # TODO Generalization
             if self.sbusFrame[byte_in_sbus] & (1 << bit_in_sbus):
                 self.sbusChannels[ch] |= (1 << bit_in_channel)
 
