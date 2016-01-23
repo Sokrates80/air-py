@@ -18,6 +18,7 @@ from attitude.attitudeController import AttitudeController
 from receiver.rcController import RCController
 from config.configFileManager import ConfigFileManager
 import micropython
+import util.airpy_logger as logger
 
 #for better callback related error reporting 
 micropython.alloc_emergency_exception_buf(100)
@@ -26,6 +27,7 @@ updateLed = False
 updateRx = False
 
 led = pyb.LED(4)
+logger.init(logger.AIRPY_INFO)
 
 def statusLed(tim1):
     global updateLed
@@ -42,6 +44,7 @@ def printReport():
     sRep += str(' - CH1: ') + str(rcCtrl.getChannel(1)) + str(', CH2: ') + str(rcCtrl.getChannel(2))
     sRep += str(', CH3: ') + str(rcCtrl.getChannel(3)) + str(', CH4: ') + str(rcCtrl.getChannel(4))
     sRep += str(' - Failsafe: ') + str(rcCtrl.getLinkStatus())
+    logger.AIRPY_INFO(sRep)
 
     print(sRep)
     #sys.stdout.write(sRep + '    \r')
