@@ -13,14 +13,14 @@ Revision History:
  
 """
 
-import pyb
-from attitude.attitude_controller import AttitudeController
-from receiver.rc_controller import RCController
-from config.config_file_manager import ConfigFileManager
-from aplink.aplink_manager import APLinkManager
-from aplink.aplink_manager import ULMux
-import binascii
 import micropython
+import pyb
+
+from aplink.aplink_manager import APLinkManager
+from attitude.attitude_controller import AttitudeController
+from config.config_file_manager import ConfigFileManager
+from receiver.rc_controller import RCController
+import util.airpy_logger as logger
 
 # for better callback related error reporting
 micropython.alloc_emergency_exception_buf(100)
@@ -30,6 +30,7 @@ update_rx = False
 sendApLink = False
 
 led = pyb.LED(4)
+logger.init(logger.AIRPY_INFO)
 
 
 def send_byte(timApLink):
@@ -55,6 +56,8 @@ def print_report():
     s_rep += str(' - CH1: ') + str(rcCtrl.get_channel(1)) + str(', CH2: ') + str(rcCtrl.get_channel(2))
     s_rep += str(', CH3: ') + str(rcCtrl.get_channel(3)) + str(', CH4: ') + str(rcCtrl.get_channel(4))
     s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
+    # debug logger
+    # logger.info(s_rep)
 
     ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')

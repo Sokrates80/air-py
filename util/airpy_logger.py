@@ -83,10 +83,6 @@ def set_logger_priority(priority):
     __LOGGER_PRIORITY = priority
 
 
-def flush():
-
-
-
 def error(text):
     """
     Prints text with error priority
