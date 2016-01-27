@@ -83,7 +83,7 @@ cm = ConfigFileManager()
 config = cm.configFile
 rcCtrl = RCController()
 aplm = APLinkManager()
-ulScheduler = aplm.UL
+ulScheduler = aplm.ul_mux
 attitudeCtrl = AttitudeController()
 attitudeCtrl.set_rc_controller(rcCtrl)
 
@@ -95,7 +95,7 @@ while True:
         print_report()
         updateLed = False
     if sendApLink:
-        tmpByte = ulScheduler.read_queue()
-        if tmpByte is not None:
-            print(chr(tmpByte))
+        #tmpByte = ulScheduler.read_queue()
+        #if tmpByte is not None:
+        #    print(chr(tmpByte))
         sendApLink = False

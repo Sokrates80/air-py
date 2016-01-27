@@ -15,15 +15,16 @@ Revision History:
 
 class HeaderBuilder:
 
-    def __init__(self):
+    def __init__(self, config):
+
         # constants
-        self.MESSAGE_ID_NUM_BYTES = 2
+        self.MESSAGE_ID_NUM_BIT = config['header']['message_id']['length_bit']
         self.FRAME_MARKER = b'\FF'
+        self.HEADER_LEN = 40
 
         # class variables
         self.sequenceNumber = 0
-        self.tempMessageID = 0
+        self.tempMessageID = 10858  # TODO to be retrieved randomly
 
     def get_message_id(self):
         return self.tempMessageID
-

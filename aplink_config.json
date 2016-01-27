@@ -1,0 +1,1 @@
+{"ul_scheduler": {"QCI_max": 3, "QCI0_weight" : 0.4, "QCI1_weight" : 0.3, "QCI2_weight" : 0.2, "QCI3_weight" : 0.1}, "ul_mux": {"buffer_len": 1500}, "header": {"frame_marker": {"index": 0, "length_bit": 8},"message_id": {"index": 1, "length_bit": 16}, "qci": {"index": 3, "length_bit": 5},"last_fragment": {"index": 3, "length_bit": 3}}}

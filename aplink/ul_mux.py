@@ -13,16 +13,25 @@ Revision History:
 """
 
 import array
+import util.airpy_logger as logger
+
 
 class ULMux:
-    def __init__(self):
+    def __init__(self, config):
+        # load ul mux config
+        self.buffer_len = config['ul_mux']['buffer_len']
+
         # buffer to store msg in the queue
-        self.msg_buffer = array.array('B', (0,)*1500)  # TODO: resize according with the link bit rate
+        self.msg_buffer = array.array('B', (0,)*self.buffer_len)
 
         self.startIndex = 0
         self.endIndex = 0
         self.lostMsg = 0
         self.lock = False
+
+        log_msg = "UL Mux loaded, BUFFER_SIZE = " + str(self.buffer_len)
+
+        logger.info(log_msg)
 
     def add_msg(self, msg):
 
