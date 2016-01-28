@@ -58,7 +58,6 @@ def print_report():
     s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
     # debug logger
     # logger.info(s_rep)
-
     #ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')
 

@@ -12,6 +12,8 @@ Revision History:
 
 """
 
+from aplink.messages.ap_heartbeat import Heartbeat
+from aplink.messages.ap_rc_info import RcInfo
 
 class HeaderBuilder:
 

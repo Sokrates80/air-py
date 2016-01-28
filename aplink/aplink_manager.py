@@ -13,11 +13,15 @@ Revision History:
 """
 
 import ujson
+
 import util.airpy_logger as logger
+from aplink.header_builder import HeaderBuilder
 from aplink.ul_mux import ULMux
 from aplink.ul_scheduler import ULScheduler
-from aplink.messages.header_builder import HeaderBuilder
 
+# Import message classes TODO import class dynamically based on the json config file
+from aplink.messages.ap_heartbeat import Heartbeat
+from aplink.messages.ap_rc_info import RcInfo
 
 class APLinkManager:
     def __init__(self, att_ct):
@@ -31,7 +35,8 @@ class APLinkManager:
         # init message triggers
         self.msg_triggers = {}  # TODO load all message triggers. USE a factory?
         self.min_tti = 10000    # TODO use a proper init value
-        self.get_min_tti(self.aplink_config['timers'])  # TODO set timer according with min tti
+        self.get_config_infos(self.aplink_config['messages'])  # TODO set aplink timer according with min tti
+        self.min_tti_count = 0
 
         # set attitude controller
         self.attitude = att_ct
@@ -48,7 +53,9 @@ class APLinkManager:
         # create the Uplink Mux
         self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
 
-        print('min tti:', self.min_tti)
+        # debug
+        self.test = Heartbeat(self.header_builder, self.attitude)
+        print('min tti:', self.min_tti, ' heartbeat:', self.test)
         logger.info("aplink stack loaded successfully")
 
     def load_aplink_config(self):
@@ -62,10 +69,12 @@ class APLinkManager:
             logger.error("can't load aplink_config.json")
         return config
 
-    #def new_aplink_message(self):
-
-    def get_min_tti(self, timers):
-        for key, value in timers.items():
+    def get_config_infos(self, messages):
+        for key, value in messages.items():
             #print(value['tti_ms'])
+            #self.msg_modules.append(value['module'])
             if value['tti_ms'] < self.min_tti:
-                self.min_tti = value
+                self.min_tti = value['tti_ms']
+
+    def send_message(self):
+        self.min_tti_count += 1

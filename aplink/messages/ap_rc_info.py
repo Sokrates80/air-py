@@ -8,12 +8,12 @@ Created on Sun Dec 13 23:32:24 2015
 
 Revision History:
 
-22-Jan-2016 Initial Release
+28-Jan-2016 Initial Release
 
 """
 
 
-class Heartbeat:
+class RcInfo:
     def __init__(self, h_builder, attitude):
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 1
