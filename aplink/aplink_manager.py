@@ -20,7 +20,7 @@ from aplink.messages.header_builder import HeaderBuilder
 
 
 class APLinkManager:
-    def __init__(self):
+    def __init__(self, att_ct):
 
         # constants
         self.CONFIG_FILE_NAME = 'aplink_config.json'
@@ -28,15 +28,27 @@ class APLinkManager:
         # load aplink config file
         self.aplink_config = self.load_aplink_config()
 
-        # load header builder
+        # init message triggers
+        self.msg_triggers = {}  # TODO load all message triggers. USE a factory?
+        self.min_tti = 10000    # TODO use a proper init value
+        self.get_min_tti(self.aplink_config['timers'])  # TODO set timer according with min tti
+
+        # set attitude controller
+        self.attitude = att_ct
+
+        # set rc controller
+        self.rc_controller = att_ct.get_rc_controller()
+
+        # create header builder
         self.header_builder = HeaderBuilder(self.aplink_config)
 
-        # create the Uplink Mux
-        self.ul_mux = ULMux(self.aplink_config)
-
         # create the Uplink Scheduler
-        self.ul_scheduler = ULScheduler(self.aplink_config, self.ul_mux)
+        self.ul_scheduler = ULScheduler(self.aplink_config)
 
+        # create the Uplink Mux
+        self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
+
+        print('min tti:', self.min_tti)
         logger.info("aplink stack loaded successfully")
 
     def load_aplink_config(self):
@@ -49,3 +61,11 @@ class APLinkManager:
         except:
             logger.error("can't load aplink_config.json")
         return config
+
+    #def new_aplink_message(self):
+
+    def get_min_tti(self, timers):
+        for key, value in timers.items():
+            #print(value['tti_ms'])
+            if value['tti_ms'] < self.min_tti:
+                self.min_tti = value

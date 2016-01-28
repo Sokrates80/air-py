@@ -19,14 +19,15 @@ class RCController:
     def __init__(self):
         # TODO select dynamically the receiver type
         self.rcCtrl = SBUSReceiver()
+        self.report = ''
         print("RCController Started")
 
     def update_rx_data(self):
         self.rcCtrl.get_new_data()
 
     def get_report(self):
-        report = self.rcCtrl.get_rx_report()
-        return report
+        self.report = self.rcCtrl.get_rx_report()
+        return self.report
 
     def get_channels(self):
         return self.rcCtrl.get_rx_channels()

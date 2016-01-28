@@ -14,16 +14,11 @@ Revision History:
 
 """
 
-from aplink.ul_mux import ULMux
 import util.airpy_logger as logger
 
 
 class ULScheduler:
-    def __init__(self, config, ulmux):
-
-        # set Uplink Mux
-        assert isinstance(ulmux, ULMux)
-        self.ul_mux = ulmux
+    def __init__(self, config):
 
         # Scheduler Settings
         self.QCI_BYTE_INDEX = config['header']['qci']['index']
@@ -34,6 +29,7 @@ class ULScheduler:
         self.QCI3_weight = config['ul_scheduler']['QCI3_weight']
         self.tmpQoS = 3
         self.QCI_BIT_MASK = 248  # First 5 bits 11111000 = 248
+        self.tmp_msg = None
 
         # QOS Queues containing ap messages according to the related QCI
         self.QCI0 = []
@@ -64,11 +60,13 @@ class ULScheduler:
         self.QCI_queue[self.tmpQoS].append(msg)
         self.QCI_queues_count[self.tmpQoS] += 1
 
-        #the approach is for each new scheduled message another message is sent to the mux TODO TBC
-        self.send_message()
+    def get_message(self):
 
-    def send_message(self):
         # TODO select the right queue
+        self.tmp_msg = None
+
         if len(self.QCI_queue[0]) > 0:
-            self.ul_mux.add_msg(self.QCI_queue[0].pop(0))
+            self.tmp_msg = self.QCI_queue[0].pop(0)
         self.QCI_queues_count[0] -= 1
+
+        return self.tmp_msg

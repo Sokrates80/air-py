@@ -59,7 +59,7 @@ def print_report():
     # debug logger
     # logger.info(s_rep)
 
-    ulScheduler.add_msg(s_rep.encode('ascii'))
+    #ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')
 
 
@@ -68,6 +68,7 @@ tim1 = pyb.Timer(1)
 tim1.init(freq=1)
 tim1.callback(status_led)
 
+#Timer for the aplink
 timApLink = pyb.Timer(4)
 timApLink.init(freq=100)
 timApLink.callback(send_byte)
@@ -82,10 +83,9 @@ print("\n\rAirPy v0.0.1 booting...\n\r")
 cm = ConfigFileManager()
 config = cm.configFile
 rcCtrl = RCController()
-aplm = APLinkManager()
-ulScheduler = aplm.ul_mux
 attitudeCtrl = AttitudeController()
 attitudeCtrl.set_rc_controller(rcCtrl)
+aplink = APLinkManager(attitudeCtrl)
 
 while True:
     if update_rx:
