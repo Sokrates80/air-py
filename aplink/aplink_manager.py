@@ -33,8 +33,8 @@ class APLinkManager:
         self.aplink_config = self.load_aplink_config()
 
         # init message triggers
-        self.msg_triggers = {}  # TODO load all message triggers. USE a factory?
-        self.min_tti = 10000    # TODO use a proper init value
+        self.msg_triggers = {}  # TODO load all message triggers
+        self.min_tti = 0   # TODO use a proper init value
         self.get_config_infos(self.aplink_config['messages'])  # TODO set aplink timer according with min tti
         self.min_tti_count = 0
 
@@ -54,8 +54,16 @@ class APLinkManager:
         self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
 
         # debug
-        self.test = Heartbeat(self.header_builder, self.attitude)
+
+        self.message_factory = {
+            'Heartbeat': Heartbeat,
+            'RcInfo': RcInfo
+        }
+
+        #debug
+        self.test = self.message_factory['Heartbeat'](self.header_builder, self.attitude)
         print('min tti:', self.min_tti, ' heartbeat:', self.test)
+
         logger.info("aplink stack loaded successfully")
 
     def load_aplink_config(self):
@@ -71,10 +79,14 @@ class APLinkManager:
 
     def get_config_infos(self, messages):
         for key, value in messages.items():
-            #print(value['tti_ms'])
-            #self.msg_modules.append(value['module'])
-            if value['tti_ms'] < self.min_tti:
+            self.msg_triggers.update({value['class']: {'tti_ms': value['tti_ms'], 'tti_count': 0}})
+            if self.min_tti == 0:
                 self.min_tti = value['tti_ms']
+            elif value['tti_ms'] < self.min_tti:
+                self.min_tti = value['tti_ms']
+        #debug
+        for key, value in self.msg_triggers.items():
+            print(key, value)
 
     def send_message(self):
         self.min_tti_count += 1
