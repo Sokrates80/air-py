@@ -23,6 +23,7 @@ from aplink.ul_scheduler import ULScheduler
 from aplink.messages.ap_heartbeat import Heartbeat
 from aplink.messages.ap_rc_info import RcInfo
 
+
 class APLinkManager:
     def __init__(self, att_ct):
 
@@ -34,9 +35,9 @@ class APLinkManager:
 
         # init message triggers
         self.msg_triggers = {}  # TODO load all message triggers
-        self.min_tti = 0   # TODO use a proper init value
+        self.min_tti = self.aplink_config['min_tti_ms']
         self.get_config_infos(self.aplink_config['messages'])  # TODO set aplink timer according with min tti
-        self.min_tti_count = 0
+        self.tmp_msg = None
 
         # set attitude controller
         self.attitude = att_ct
@@ -60,9 +61,8 @@ class APLinkManager:
             'RcInfo': RcInfo
         }
 
-        #debug
-        self.test = self.message_factory['Heartbeat'](self.header_builder, self.attitude)
-        print('min tti:', self.min_tti, ' heartbeat:', self.test)
+        # debug
+        #print('min tti:', self.min_tti, ' heartbeat:', self.test)
 
         logger.info("aplink stack loaded successfully")
 
@@ -79,14 +79,20 @@ class APLinkManager:
 
     def get_config_infos(self, messages):
         for key, value in messages.items():
-            self.msg_triggers.update({value['class']: {'tti_ms': value['tti_ms'], 'tti_count': 0}})
-            if self.min_tti == 0:
-                self.min_tti = value['tti_ms']
-            elif value['tti_ms'] < self.min_tti:
-                self.min_tti = value['tti_ms']
-        #debug
+            # calculate normalized triggers for each message
+            self.msg_triggers.update({value['class']: {'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
+        # debug
         for key, value in self.msg_triggers.items():
             print(key, value)
 
+    def get_timer_freq(self):
+        return 1000.0/self.min_tti
+
     def send_message(self):
-        self.min_tti_count += 1
+        for key, value in self.msg_triggers.items():
+            value['tti_count'] += 1
+            if value['tti_count'] >= value['tti_ms']:
+                # print("time to send ", key)
+                self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
+                self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
+                value['tti_count'] = 0

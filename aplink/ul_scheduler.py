@@ -27,7 +27,7 @@ class ULScheduler:
         self.QCI1_weight = config['ul_scheduler']['QCI1_weight']
         self.QCI2_weight = config['ul_scheduler']['QCI2_weight']
         self.QCI3_weight = config['ul_scheduler']['QCI3_weight']
-        self.tmpQoS = 3
+        self.tmpQCI = 3
         self.QCI_BIT_MASK = 248  # First 5 bits 11111000 = 248
         self.tmp_msg = None
 
@@ -51,18 +51,19 @@ class ULScheduler:
         logger.info(log_msg)
 
     def schedule_message(self, msg):
-        self.tmpQoS = msg[self.QCI_BYTE_INDEX] & self.QCI_BIT_MASK >> 3
+        self.tmpQCI = msg[self.QCI_BYTE_INDEX] & self.QCI_BIT_MASK >> 3
 
-        if self.tmpQoS > self.QCI_MAX_VALUE:
-            self.tmpQoS = self.QCI_MAX_VALUE  # for robustness against not supported QoS
+        if self.tmpQCI > self.QCI_MAX_VALUE:
+            self.tmpQCI = self.QCI_MAX_VALUE  # for robustness against not supported QoS
 
-        #print(self.get_qos(msg[self.QCI_BYTE_INDEX]))
-        self.QCI_queue[self.tmpQoS].append(msg)
-        self.QCI_queues_count[self.tmpQoS] += 1
+        #print("Message: ", msg)
+        # print("Message: ", msg, "QCI: ", self.tmpQCI)
+        self.QCI_queue[self.tmpQCI].append(msg)
+        self.QCI_queues_count[self.tmpQCI] += 1
 
     def get_message(self):
 
-        # TODO select the right queue
+        # TODO select the right queue based on the weight
         self.tmp_msg = None
 
         if len(self.QCI_queue[0]) > 0:

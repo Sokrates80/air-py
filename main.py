@@ -27,15 +27,21 @@ micropython.alloc_emergency_exception_buf(100)
 
 updateLed = False
 update_rx = False
-sendApLink = False
+sendApLinkMux = False
+sendApLinkMsg = False
 
 led = pyb.LED(4)
 logger.init(logger.AIRPY_INFO)
 
 
-def send_byte(timApLink):
-    global sendApLink
-    sendApLink = True
+def send_byte(timApLink_mux):
+    global sendApLinkMux
+    sendApLinkMux = True
+
+
+def send_message(timApLinkMsg):
+    global sendApLinkMsg
+    sendApLinkMsg = True
 
 
 def status_led(tim1):
@@ -67,15 +73,15 @@ tim1 = pyb.Timer(1)
 tim1.init(freq=1)
 tim1.callback(status_led)
 
-#Timer for the aplink
-timApLink = pyb.Timer(4)
-timApLink.init(freq=100)
-timApLink.callback(send_byte)
-
 # Init Rx Timing at 300us (Frsky specific). TODO: Read RxTiming from Setting
 timRx = pyb.Timer(2)
 timRx.init(freq=2778)
 timRx.callback(update_rx_data)
+
+# Timer for the aplink uplink mux
+timApLink = pyb.Timer(4)
+timApLink.init(freq=100)
+timApLink.callback(send_byte)
 
 print("\n\rAirPy v0.0.1 booting...\n\r")
 
@@ -86,15 +92,25 @@ attitudeCtrl = AttitudeController()
 attitudeCtrl.set_rc_controller(rcCtrl)
 aplink = APLinkManager(attitudeCtrl)
 
+# Timer for the aplink message factory
+timApLinkMsg = pyb.Timer(10)
+timApLinkMsg.init(freq=aplink.get_timer_freq())
+timApLinkMsg.callback(send_message)
+
+print("timer freq: ", aplink.get_timer_freq())
+
 while True:
     if update_rx:
         rcCtrl.update_rx_data()
         update_rx = False
     if updateLed:
-        print_report()
+        # print_report()
         updateLed = False
-    if sendApLink:
-        #tmpByte = ulScheduler.read_queue()
-        #if tmpByte is not None:
-        #    print(chr(tmpByte))
-        sendApLink = False
+    if sendApLinkMux:
+        tmpByte = aplink.ul_mux.read_queue()
+        if tmpByte is not None:
+            print(chr(tmpByte))
+        sendApLinkMux = False
+    if sendApLinkMsg:
+        aplink.send_message()
+        sendApLinkMsg = False
