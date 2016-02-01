@@ -56,7 +56,7 @@ class ULScheduler:
         if self.tmpQCI > self.QCI_MAX_VALUE:
             self.tmpQCI = self.QCI_MAX_VALUE  # for robustness against not supported QoS
 
-        #print("Message: ", msg)
+        print("Message: ", msg)
         # print("Message: ", msg, "QCI: ", self.tmpQCI)
         self.QCI_queue[self.tmpQCI].append(msg)
         self.QCI_queues_count[self.tmpQCI] += 1

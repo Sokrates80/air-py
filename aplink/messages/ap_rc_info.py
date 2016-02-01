@@ -15,12 +15,15 @@ Revision History:
 
 class RcInfo:
     def __init__(self, h_builder, attitude):
-        self.QCI = 0
-        self.MESSAGE_TYPE_ID = 20
-        self.PAYLOAD_LENGTH = 1
-        self.PAYLOAD = b'\xFF'
+
         self.attitude_controller = attitude
         self.header_builder = h_builder
+        self.QCI = 0
+        self.MESSAGE_TYPE_ID = 20
+        # self.PAYLOAD = b'\xFF'
+        self.PAYLOAD = (self.attitude_controller.get_rc_controller()).get_channels()
+        self.PAYLOAD_LENGTH = len(self.PAYLOAD)
+        self.EOF = self.PAYLOAD[0]
         self.header = bytearray(h_builder.get_header(self))
         self.message = self.header + bytearray(self.PAYLOAD)
 

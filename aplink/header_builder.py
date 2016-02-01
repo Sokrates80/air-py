@@ -53,7 +53,8 @@ class HeaderBuilder:
         self.header[9] = 0  # Sequence Number Byte 2 TODO TB implemented
         self.header[10] = 0  # Failsafe & Flight Mode TODO TB implemented
         self.header[11] = self.tmp_message.PAYLOAD_LENGTH
-        self.header[12] = 255  # EOF = 1st Payload Byte TODO TB implemented
+        self.header[12] = self.tmp_message.EOF  # EOF = 1st Payload Byte
+        # self.header[12] = 255  # EOF = 1st Payload Byte TODO TB implemented
 
 
 
