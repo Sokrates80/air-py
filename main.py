@@ -15,6 +15,8 @@ Revision History:
 
 import micropython
 import pyb
+import binascii
+import struct
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
@@ -32,7 +34,7 @@ sendApLinkMsg = False
 
 led = pyb.LED(4)
 logger.init(logger.AIRPY_INFO)
-
+tmpByte = bytearray(1)
 
 def send_byte(timApLink_mux):
     global sendApLinkMux
@@ -108,8 +110,11 @@ while True:
         updateLed = False
     if sendApLinkMux:
         tmpByte = aplink.ul_mux.read_queue()
+        tmpBuffer = aplink.ul_mux.get_buffer_size()
+        # print(tmpBuffer)
         if tmpByte is not None:
-            print(chr(tmpByte))
+            print(struct.pack("B", tmpByte & 0xff))
+            #print(binascii.hexlify(tmpByte))
         sendApLinkMux = False
     if sendApLinkMsg:
         aplink.send_message()

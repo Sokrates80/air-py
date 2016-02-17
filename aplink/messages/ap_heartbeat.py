@@ -18,8 +18,8 @@ class Heartbeat:
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 10
         self.PAYLOAD_LENGTH = 1
-        self.PAYLOAD = b'\xFF'
-        self.EOF = b'\xFF'
+        self.PAYLOAD = 255
+        self.EOF = 255
         self.attitude_controller = attitude
         self.header_builder = h_builder
         self.header = bytearray(h_builder.get_header(self))

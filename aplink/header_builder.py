@@ -34,7 +34,7 @@ class HeaderBuilder:
         self.header = array.array('B', (0,) * self.HEADER_LEN)  # RC Channels
         self.tmp_message = None
 
-    def get_header(self,msg):
+    def get_header(self, msg):
         self.tmp_message = msg
         self.tempMessageID += 1  # TODO change to be retrieved randomly
         self.build_header()
@@ -54,8 +54,3 @@ class HeaderBuilder:
         self.header[10] = 0  # Failsafe & Flight Mode TODO TB implemented
         self.header[11] = self.tmp_message.PAYLOAD_LENGTH
         self.header[12] = self.tmp_message.EOF  # EOF = 1st Payload Byte
-        # self.header[12] = 255  # EOF = 1st Payload Byte TODO TB implemented
-
-
-
-

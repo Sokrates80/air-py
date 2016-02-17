@@ -33,6 +33,7 @@ class ULMux:
         self.endIndex = 0
         self.lostMsg = 0
         self.lock = False
+        self.tmpBufferSize = 0
 
         log_msg = "UL Mux loaded, BUFFER_SIZE = " + str(self.buffer_len)
 
@@ -62,6 +63,13 @@ class ULMux:
             else:
                 self.lostMsg += 1
         self.lock = False
+
+    def get_buffer_size(self):
+        if self.startIndex < self.endIndex:
+            self.tmpBufferSize = self.endIndex - self.startIndex
+        else:
+            self.tmpBufferSize = -self.endIndex + self.startIndex
+        return self.tmpBufferSize
 
     def read_queue(self):
         if not self.lock:
