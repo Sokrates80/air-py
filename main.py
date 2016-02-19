@@ -15,6 +15,7 @@ Revision History:
 
 import micropython
 import pyb
+import gc
 import binascii
 import struct
 
@@ -82,7 +83,7 @@ timRx.callback(update_rx_data)
 
 # Timer for the aplink uplink mux
 timApLink = pyb.Timer(4)
-timApLink.init(freq=100)
+timApLink.init(freq=1000)
 timApLink.callback(send_byte)
 
 print("\n\rAirPy v0.0.1 booting...\n\r")
@@ -109,12 +110,14 @@ while True:
         # print_report()
         updateLed = False
     if sendApLinkMux:
-        tmpByte = aplink.ul_mux.read_queue()
-        tmpBuffer = aplink.ul_mux.get_buffer_size()
-        # print(tmpBuffer)
+        # tmpByte = aplink.ul_mux.read_queue()
+        tmpByte = aplink.ul_ser.read_queue()
+        # tmpBuffer = aplink.ul_mux.get_buffer_size()
+        # gc.collect()
         if tmpByte is not None:
-            print(struct.pack("B", tmpByte & 0xff))
-            #print(binascii.hexlify(tmpByte))
+           # print(struct.pack("B", tmpByte & 0xff))
+            micropython.mem_info()
+            # print(binascii.hexlify(tmpByte))
         sendApLinkMux = False
     if sendApLinkMsg:
         aplink.send_message()

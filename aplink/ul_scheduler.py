@@ -56,18 +56,19 @@ class ULScheduler:
         if self.tmpQCI > self.QCI_MAX_VALUE:
             self.tmpQCI = self.QCI_MAX_VALUE  # for robustness against not supported QoS
 
-        print("Message: ", msg)
-        # print("Message: ", msg, "QCI: ", self.tmpQCI)
         self.QCI_queue[self.tmpQCI].append(msg)
-        self.QCI_queues_count[self.tmpQCI] += 1
+        # TODO handling of other queues
+        self.QCI0Count += 1
+        print(self.QCI0Count)
 
     def get_message(self):
 
         # TODO select the right queue based on the weight
         self.tmp_msg = None
 
-        if len(self.QCI_queue[0]) > 0:
+        # if len(self.QCI_queue[0]) > 0:
+        if self.QCI0Count > 0:
             self.tmp_msg = self.QCI_queue[0].pop(0)
-        self.QCI_queues_count[0] -= 1
+            self.QCI0Count -= 1
 
         return self.tmp_msg

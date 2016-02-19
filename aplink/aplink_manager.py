@@ -16,7 +16,7 @@ import ujson
 
 import util.airpy_logger as logger
 from aplink.header_builder import HeaderBuilder
-from aplink.ul_mux import ULMux
+from aplink.ul_serializer import ULSerializer
 from aplink.ul_scheduler import ULScheduler
 
 # Import message classes TODO import class dynamically based on the json config file
@@ -52,7 +52,10 @@ class APLinkManager:
         self.ul_scheduler = ULScheduler(self.aplink_config)
 
         # create the Uplink Mux
-        self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
+        # self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
+
+        # create the Uplink Serializer
+        self.ul_ser = ULSerializer(self.aplink_config, self.ul_scheduler)
 
         # debug
 
