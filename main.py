@@ -37,7 +37,8 @@ led = pyb.LED(4)
 logger.init(logger.AIRPY_INFO)
 tmpByte = bytearray(1)
 
-def send_byte(timApLink_mux):
+
+def send_byte(timApLink):
     global sendApLinkMux
     sendApLinkMux = True
 
@@ -83,7 +84,7 @@ timRx.callback(update_rx_data)
 
 # Timer for the aplink uplink mux
 timApLink = pyb.Timer(4)
-timApLink.init(freq=1000)
+timApLink.init(freq=2000)
 timApLink.callback(send_byte)
 
 print("\n\rAirPy v0.0.1 booting...\n\r")
@@ -114,10 +115,10 @@ while True:
         tmpByte = aplink.ul_ser.read_queue()
         # tmpBuffer = aplink.ul_mux.get_buffer_size()
         # gc.collect()
-        if tmpByte is not None:
-           # print(struct.pack("B", tmpByte & 0xff))
-            micropython.mem_info()
-            # print(binascii.hexlify(tmpByte))
+        #if tmpByte is not None:
+            #print(struct.pack("B", tmpByte & 0xff))
+        #micropython.mem_info()
+            #print(binascii.hexlify(tmpByte))
         sendApLinkMux = False
     if sendApLinkMsg:
         aplink.send_message()
