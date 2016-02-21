@@ -67,7 +67,7 @@ class ULScheduler:
             self.tmpQCI = self.QCI_MAX_VALUE  # for robustness against not supported QoS
 
         # TODO handling of other queues
-        for j in range(0, len(msg)-1):
+        for j in range(0, len(msg)):
             self.QCI0_buff[self.QCI0_index + j] = msg[j]
         self.QCI0_msg_len[self.QCI0Count] = len(msg)
         self.QCI0_index += len(msg)
@@ -80,13 +80,16 @@ class ULScheduler:
 
         if self.QCI0Count > 0:
             self.tmp_msg = self.QCI0_buff[0:self.QCI0_msg_len[0]]
-
-            for k in range(0, self.QCI0_index-self.QCI0_msg_len[0]-1):
+            # print("range:", self.QCI0_index-self.QCI0_msg_len[0], " - msg in queue:", self.QCI0Count, " - index:", self.QCI0_index)
+            for k in range(0, self.QCI0_index-self.QCI0_msg_len[0]):
                 self.QCI0_buff[k] = self.QCI0_buff[self.QCI0_msg_len[0] + k]
             # shift array on the left by 1
-            for i in range(0, self.QCI0Count-1):
+            for i in range(0, self.QCI0Count):
                 self.QCI0_msg_len[i] = self.QCI0_msg_len[i+1]
             self.QCI0_index -= len(self.tmp_msg)
             self.QCI0Count -= 1
+        else:
+            self.QCI0_index = 0
+            self.QCI0_msg_len[0] = 0
 
         return self.tmp_msg
