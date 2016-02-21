@@ -28,15 +28,13 @@ class HeaderBuilder:
         self.FIRST_BYTE_BITMASK = 255
         self.LAST_FRAGMENT_TRUE = 7
         self.LAST_FRAGMENT_FALSE = 0
-        self.EOF = 255
 
         # class variables
         self.sequenceNumber = 0
-        self.tempMessageID = 10858 # TODO to be retrieved randomly
+        self.tempMessageID = 10858  # TODO to be retrieved randomly
         self.header = array.array('B', (0,) * self.HEADER_LEN)  # RC Channels
         # self.header = bytearray(13)  # RC Channels
         self.tmp_message = None
-        print(self.tempMessageID)
 
     def get_header(self, msg):
         self.tmp_message = msg

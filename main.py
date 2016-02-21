@@ -34,6 +34,7 @@ sendApLinkMux = False
 sendApLinkMsg = False
 
 led = pyb.LED(4)
+usb = pyb.USB_VCP()
 logger.init(logger.AIRPY_INFO)
 tmpByte = bytearray(1)
 
@@ -110,13 +111,12 @@ while True:
     if updateLed:
         # print_report()
         gc.collect()  # TODO: implement proper management of GC
-        micropython.mem_info()
+        # micropython.mem_info()
         updateLed = False
     if sendApLinkMux:
-        # tmpByte = aplink.ul_mux.read_queue()
-        tmpByte = aplink.ul_ser.read_queue()
-        # tmpBuffer = aplink.ul_mux.get_buffer_size()
-        # if tmpByte is not None:
+        tmpByte = aplink.ul_scheduler.get_message()
+        if tmpByte is not None:
+            usb.write(bytearray(tmpByte))  # send message to the USB
             #print(struct.pack("B", tmpByte & 0xff))
             #print(binascii.hexlify(tmpByte))
         sendApLinkMux = False
