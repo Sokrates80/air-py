@@ -41,12 +41,12 @@ class SBUSReceiver:
         self.outOfSyncCounter = 0
         self.sbusBuff = bytearray(1)  # single byte used for sync
         self.sbusFrame = bytearray(25)  # single SBUS Frame
-        self.sbusChannels = array.array('I', (0,) * self.SBUS_FRAME_LEN)  # RC Channels
+        self.sbusChannels = array.array('H', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])  # RC Channels
         self.isSync = False
         self.startByteFound = False
         self.failSafeStatus = self.SBUS_SIGNAL_FAILSAFE
 
-        print("\n\rSBUS Stack Started")
+        print("SBUS Stack Started")
 
     def get_rx_channels(self):
         return self.sbusChannels

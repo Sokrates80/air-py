@@ -39,7 +39,7 @@ class ULSerializer:
         # self.msg_buffer += msg
         self.bytes_in_buffer = len(msg)
         self.byte_to_send_index = 0
-        print("Serial Buffer Len:", len(self.msg_buffer))
+        # print("Serial Buffer Len:", len(self.msg_buffer))
         self.msg_buffer[0:self.bytes_in_buffer] = msg
 
     def read_queue(self):
@@ -50,7 +50,6 @@ class ULSerializer:
 
             if self.tmp_msg is not None:
                 self.add_msg(self.tmp_msg)
-                print("New Message to Serialize")
 
         if self.bytes_in_buffer - self.byte_to_send_index > 0:
             # print("bytes_in_buffer", self.bytes_in_buffer, " - byte index:", self.byte_to_send_index, "msg:", self.msg_buffer[self.byte_to_send_index])

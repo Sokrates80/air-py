@@ -109,15 +109,15 @@ while True:
         update_rx = False
     if updateLed:
         # print_report()
+        gc.collect()  # TODO: implement proper management of GC
+        micropython.mem_info()
         updateLed = False
     if sendApLinkMux:
         # tmpByte = aplink.ul_mux.read_queue()
         tmpByte = aplink.ul_ser.read_queue()
         # tmpBuffer = aplink.ul_mux.get_buffer_size()
-        # gc.collect()
-        #if tmpByte is not None:
+        # if tmpByte is not None:
             #print(struct.pack("B", tmpByte & 0xff))
-        #micropython.mem_info()
             #print(binascii.hexlify(tmpByte))
         sendApLinkMux = False
     if sendApLinkMsg:
