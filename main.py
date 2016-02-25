@@ -16,8 +16,6 @@ Revision History:
 import micropython
 import pyb
 import gc
-import binascii
-import struct
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
@@ -28,9 +26,15 @@ import util.airpy_logger as logger
 # for better callback related error reporting
 micropython.alloc_emergency_exception_buf(100)
 
+# State Definition
+IDLE = 0
+ARMED = 1
+FAIL_SAFE = 2
+
+state = IDLE
 updateLed = False
 update_rx = False
-sendApLinkMux = False
+sendByte = False
 sendApLinkMsg = False
 
 led = pyb.LED(4)
@@ -40,8 +44,8 @@ tmpByte = bytearray(1)
 
 
 def send_byte(timApLink):
-    global sendApLinkMux
-    sendApLinkMux = True
+    global sendByte
+    sendByte = True
 
 
 def send_message(timApLinkMsg):
@@ -113,13 +117,11 @@ while True:
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
         updateLed = False
-    if sendApLinkMux:
+    if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()
         if tmpByte is not None:
             usb.write(bytearray(tmpByte))  # send message to the USB
-            #print(struct.pack("B", tmpByte & 0xff))
-            #print(binascii.hexlify(tmpByte))
-        sendApLinkMux = False
+        sendByte = False
     if sendApLinkMsg:
         aplink.send_message()
         sendApLinkMsg = False

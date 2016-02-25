@@ -29,9 +29,16 @@ class APLinkManager:
 
         # constants
         self.CONFIG_FILE_NAME = 'aplink_config.json'
+        self.ENABLED = 1
+        self.DISABLED = 0
 
         # load aplink config file
         self.aplink_config = self.load_aplink_config()
+
+        # protocol states
+        self.DISCONNECTED = 0
+        self.CONNECTED = 1
+        self.REPL = 2
 
         # init message triggers
         self.msg_triggers = {}  # TODO load all message triggers
@@ -83,7 +90,7 @@ class APLinkManager:
     def get_config_infos(self, messages):
         for key, value in messages.items():
             # calculate normalized triggers for each message
-            self.msg_triggers.update({value['class']: {'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
+            self.msg_triggers.update({value['class']: {'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
         # debug
         for key, value in self.msg_triggers.items():
             print(key, value)
@@ -94,8 +101,9 @@ class APLinkManager:
     def send_message(self):
         for key, value in self.msg_triggers.items():
             value['tti_count'] += 1
-            if value['tti_count'] >= value['tti_ms']:
-                # print("time to send ", key)
-                self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
-                self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
-                value['tti_count'] = 0
+            if value['enabled'] == self.ENABLED:
+                if value['tti_count'] >= value['tti_ms']:
+                    # print("time to send ", key)
+                    self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
+                    self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
+                    value['tti_count'] = 0
