@@ -15,7 +15,7 @@ Revision History:
 
 from pyb import UART
 import array
-
+import util.airpy_logger as logger
 
 class SBUSReceiver:
     def __init__(self):
@@ -46,7 +46,7 @@ class SBUSReceiver:
         self.startByteFound = False
         self.failSafeStatus = self.SBUS_SIGNAL_FAILSAFE
 
-        print("SBUS Stack Started")
+        logger.info("SBUS Stack Started")
 
     def get_rx_channels(self):
         return self.sbusChannels

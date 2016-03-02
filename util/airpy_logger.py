@@ -31,6 +31,7 @@ class airpy_logger:
         self.__FILESYSTEM_AVAILABLE = False
         try:
             app_config = load_config_file("app_config.json")
+            info("Filla ***************** {}".format(app_config))
             self.__FILESYSTEM_AVAILABLE = app_config['serial_only']
         except:
             pass
@@ -62,7 +63,7 @@ class airpy_logger:
                 system_log.write("%s\n" % text)
                 system_log.close()
             if not self.__FILESYSTEM_AVAILABLE:
-                print(text)
+                print("Logger print:{}".format(text))
             else:
                 self.__cache_log(text)
         except OSError:

@@ -80,7 +80,9 @@ class ULScheduler:
 
         if self.QCI0Count > 0:
             self.tmp_msg = self.QCI0_buff[0:self.QCI0_msg_len[0]]
-            # print("range:", self.QCI0_index-self.QCI0_msg_len[0], " - msg in queue:", self.QCI0Count, " - index:", self.QCI0_index)
+            logger.debug("Range:{} - msg in queue:{} - index:{}".format(self.QCI0_index-self.QCI0_msg_len[0],
+                                                                        self.QCI0Count,
+                                                                        self.QCI0_index))
             for k in range(0, self.QCI0_index-self.QCI0_msg_len[0]):
                 self.QCI0_buff[k] = self.QCI0_buff[self.QCI0_msg_len[0] + k]
             # shift array on the left by 1

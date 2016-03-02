@@ -12,12 +12,13 @@ Revision History:
 20-Jan-2016 Refactor to be compliant with PEP8
 
 """
+import util.airpy_logger as logger
 
 
 class AttitudeController:
     def __init__(self):
         self.rc_control = None
-        print("AttitudeController Started")
+        logger.info("AttitudeController Started")
 
     def set_rc_controller(self, rcCtrl):
         self.rc_control = rcCtrl
