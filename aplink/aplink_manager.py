@@ -69,7 +69,7 @@ class APLinkManager:
             'RcInfo': RcInfo
         }
         logger.info("aplink stack loaded successfully")
-        logger.debug("min tti:{}".format(self.min_tti))
+        #logger.debug("min tti:{}".format(self.min_tti))
 
     def load_aplink_config(self):
         config = None
@@ -98,7 +98,7 @@ class APLinkManager:
             value['tti_count'] += 1
             if value['enabled'] == self.ENABLED:
                 if value['tti_count'] >= value['tti_ms']:
-                    logger.debug("send_message - time to send: {}".format(key))
+                    #logger.debug("send_message - time to send: {}".format(key))
                     self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
                     self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
                     value['tti_count'] = 0

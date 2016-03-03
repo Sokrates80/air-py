@@ -111,7 +111,8 @@ timApLinkMsg = pyb.Timer(10)
 timApLinkMsg.init(freq=aplink.get_timer_freq())
 timApLinkMsg.callback(send_message)
 
-logger.info("timer freq: ".format(aplink.get_timer_freq()))
+logger.info("timer freq:{}".format(aplink.get_timer_freq()))
+logger.system("Just a system test. Should create a system log")
 
 while True:
     if update_rx:
@@ -125,8 +126,9 @@ while True:
     if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()
         if tmpByte is not None:
+            pass
             #usb.write(bytearray(tmpByte))  # send message to the USB
-            logger.info(tmpByte)
+            #logger.info(tmpByte)
         sendByte = False
     if sendApLinkMsg:
         aplink.send_message()

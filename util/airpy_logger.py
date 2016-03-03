@@ -26,20 +26,19 @@ class airpy_logger:
         self.__CACHE_MAX_LENGTH = 5
         self.__RTC = RTC()
         datetime = self.__RTC.datetime()
-        self.__AIR_PY_LOG = ("log/airpy-air-py-log-%02d-%02d-%02d-%02d.txt" % (datetime[1], datetime[2], datetime[4], datetime[5]))
-        self.__SYSTEM_LOG = ("log/airpy-system-log-%02d-%02d-%02d-%02d.txt" % (datetime[1], datetime[2], datetime[4], datetime[5]))
-        self.__FILESYSTEM_AVAILABLE = False
+        app_config = {"serial_only": False, "fs_root": ""}
         try:
             app_config = load_config_file("app_config.json")
-            info("Filla ***************** {}".format(app_config))
-            self.__FILESYSTEM_AVAILABLE = app_config['serial_only']
+            os.mkdir("log")
         except:
             pass
-
-        try:
-            os.mkdir("log")
-        except OSError:
-            pass
+        fs_root = app_config['fs_root']
+        self.__AIR_PY_LOG = ("%slog/airpy-airpy-log-D%02d-H%02d-m%02d.txt" % (fs_root, datetime[2], datetime[4], datetime[5]))
+        self.__SYSTEM_LOG = ("%slog/airpy-system-log-D%02d-H%02d-m%02d.txt" % (fs_root, datetime[2], datetime[4], datetime[5]))
+        self.__MISSION_LOG = ("%slog/airpy-mission-log-D%02d-H%02d-m%02d.txt" % (fs_root, datetime[2], datetime[4], datetime[5]))
+        self.__FILESYSTEM_AVAILABLE = app_config["serial_only"]
+        self.__IN_MISSION = False
+        info("AirPy logger. File sytem available {}".format(app_config['serial_only']))
 
     def __validate_priority(self, priority):
         """
@@ -58,14 +57,16 @@ class airpy_logger:
         """
 
         try:
-            if priority == AIRPY_SYSTEM and self.__FILESYSTEM_AVAILABLE:
-                system_log = open(self.__SYSTEM_LOG, "a")
-                system_log.write("%s\n" % text)
-                system_log.close()
-            if not self.__FILESYSTEM_AVAILABLE:
-                print("Logger print:{}".format(text))
+            if self.__IN_MISSION:
+                self.mission_log.write("%s\n" % text)
             else:
-                self.__cache_log(text)
+                if priority == AIRPY_SYSTEM and self.__FILESYSTEM_AVAILABLE:
+                    system_log = open(self.__SYSTEM_LOG, "a")
+                    system_log.write("%s\n" % text)
+                    system_log.close()
+                print("Serial log:{}".format(text))
+                if self.__FILESYSTEM_AVAILABLE:
+                    self.__cache_log(text)
         except OSError:
             pass
 
@@ -112,6 +113,16 @@ class airpy_logger:
         :return:
         """
         self.__LOGGER_PRIORITY = priority
+
+    def set_mission_status(self, enabled):
+        """ Changes mission status
+        :param enabled: true means in mission
+        """
+        self.__IN_MISSION = enabled
+        if enabled:
+            self.mission_log = open(self.__MISSION_LOG, "a")
+        else:
+            self.mission_log.close()
 
 
 def init(priority, caching_enabled=False):
@@ -177,3 +188,13 @@ def info(text):
     global LOGGER_GLOBAL_REF
     if LOGGER_GLOBAL_REF:
         LOGGER_GLOBAL_REF.airpy_log(AIRPY_INFO, "INFO\t{}".format(text))
+
+
+def mission_logging_control(enable):
+    """
+    Start/stop mission logging
+    :param enable: true when mission starts
+    """
+    global LOGGER_GLOBAL_REF
+    if LOGGER_GLOBAL_REF:
+        LOGGER_GLOBAL_REF.set_mission_status(enable)
