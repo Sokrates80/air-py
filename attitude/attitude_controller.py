@@ -12,10 +12,11 @@ Revision History:
 20-Jan-2016 Refactor to be compliant with PEP8
 
 """
-# import sys
 
+# import sys
 from imu.mpu9150 import MPU9150
 from fusion.fusion import Fusion
+import util.airpy_logger as logger
 
 
 class AttitudeController:
@@ -23,8 +24,7 @@ class AttitudeController:
         self.rc_control = None
         self.imu = MPU9150('X')
         self.state = Fusion()
-
-        print("AttitudeController Started")
+        logger.info("AttitudeController Started")
 
     def set_rc_controller(self, rcCtrl):
         self.rc_control = rcCtrl

@@ -17,11 +17,13 @@ import micropython
 import pyb
 import gc
 
+import util.airpy_logger as logger
+
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
 from config.config_file_manager import ConfigFileManager
 from receiver.rc_controller import RCController
-import util.airpy_logger as logger
+
 
 # for better callback related error reporting
 micropython.alloc_emergency_exception_buf(100)
@@ -72,13 +74,16 @@ def updateAttitude(timAttitude):
 
 # for debug
 def print_report():
-    r = rcCtrl.get_report()
-    s_rep = str('Valid Frames: ') + str(r['Valid Frames']) + str(' - Lost Frames: ') + str(r['Lost Frames'])
-    s_rep += str(' - CH1: ') + str(rcCtrl.get_channel(1)) + str(', CH2: ') + str(rcCtrl.get_channel(2))
-    s_rep += str(', CH3: ') + str(rcCtrl.get_channel(3)) + str(', CH4: ') + str(rcCtrl.get_channel(4))
-    s_rep += str(' - Failsafe: ') + str(rcCtrl.get_link_status())
-    # debug logger
-    # logger.info(s_rep)
+    report = rcCtrl.get_report()
+    full_report = "Valid Frames:{}  - Lost Frames:{}  - CH1:{}, CH2:{}, CH3:{}, CH4:{} - Failsafe:{}".format(
+            report['Valid Frames'],
+            report['Lost Frames'],
+            rcCtrl.get_channel(1),
+            rcCtrl.get_channel(2),
+            rcCtrl.get_channel(3),
+            rcCtrl.get_channel(4),
+            rcCtrl.get_link_status())
+    logger.info(full_report)
     #ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')
 
@@ -98,7 +103,7 @@ timApLink = pyb.Timer(4)
 timApLink.init(freq=2000)
 timApLink.callback(send_byte)
 
-print("\n\rAirPy v0.0.1 booting...\n\r")
+logger.info("AirPy v0.0.1 booting...")
 
 cm = ConfigFileManager()
 config = cm.configFile
@@ -117,7 +122,8 @@ timAttitude = pyb.Timer(12)
 timAttitude.init(freq=20)
 timAttitude.callback(updateAttitude)
 
-print("timer freq: ", aplink.get_timer_freq())
+logger.info("timer freq:{}".format(aplink.get_timer_freq()))
+logger.system("Just a system test. Should create a system log")
 
 while True:
     if update_rx:
@@ -134,7 +140,9 @@ while True:
     if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()
         if tmpByte is not None:
-            usb.write(bytearray(tmpByte))  # send message to the USB
+            pass
+            #usb.write(bytearray(tmpByte))  # send message to the USB
+            #logger.info(tmpByte)
         sendByte = False
     if sendApLinkMsg:
         aplink.send_message()

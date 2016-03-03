@@ -12,32 +12,20 @@ Revision History:
 
 """
 
-import ujson
 from config.config_file_generator import ConfigFileGenerator
+from util.airpy_config_utils import load_config_file, save_config_file
+import util.airpy_logger as logger
 
 
 class ConfigFileManager:
+
+    CONFIG_FILE_NAME = 'config.json'
+
     def __init__(self):
-        self.CONFIG_FILE_NAME = 'config.json'
-        self.configFile = None
-        self.load_config_file()
-        print('ConfigFileManager Started')
-
-    def load_config_file(self):
         try:
-            f = open(self.CONFIG_FILE_NAME, 'r')
-            self.configFile = ujson.loads(f.readall())
-            f.close()
+            self.configFile = load_config_file(self.CONFIG_FILE_NAME)
         except:
-            self.create_default_config()
+            self.configFile = ConfigFileGenerator.get_default_config_file()
+            save_config_file(self.CONFIG_FILE_NAME, self.configFile)
 
-    def create_default_config(self):
-        conf = ConfigFileGenerator()
-        try:
-            f = open('config.json', 'w')
-            f.write(ujson.dumps(conf.get_default_config_file()))
-            f.close()
-        except:
-            c = 1  # TODO Log Error
-
-        return conf.get_default_config_file()
+        logger.info('ConfigFileManager Started')
