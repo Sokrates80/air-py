@@ -34,6 +34,7 @@ FAIL_SAFE = 2
 state = IDLE
 updateLed = False
 update_rx = False
+update_attitude = False
 sendByte = False
 sendApLinkMsg = False
 
@@ -62,6 +63,11 @@ def status_led(tim1):
 def update_rx_data(timRx):
     global update_rx
     update_rx = True
+
+
+def updateAttitude(timAttitude):
+    global update_attitude
+    update_attitude = True
 
 
 # for debug
@@ -106,6 +112,11 @@ timApLinkMsg = pyb.Timer(10)
 timApLinkMsg.init(freq=aplink.get_timer_freq())
 timApLinkMsg.callback(send_message)
 
+# Timer for the attitude controller
+timAttitude = pyb.Timer(12)
+timAttitude.init(freq=20)
+timAttitude.callback(updateAttitude)
+
 print("timer freq: ", aplink.get_timer_freq())
 
 while True:
@@ -117,6 +128,9 @@ while True:
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
         updateLed = False
+    if update_attitude:
+        attitudeCtrl.updateState()
+        update_attitude = False
     if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()
         if tmpByte is not None:

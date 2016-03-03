@@ -62,7 +62,7 @@ class APLinkManager:
         # self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
 
         # create the Uplink Serializer
-        self.ul_ser = ULSerializer(self.aplink_config, self.ul_scheduler)
+        # self.ul_ser = ULSerializer(self.aplink_config, self.ul_scheduler)
 
         # debug
 
