@@ -65,18 +65,13 @@ class APLinkManager:
         # create the Uplink Serializer
         # self.ul_ser = ULSerializer(self.aplink_config, self.ul_scheduler)
 
-        # debug
-
         self.message_factory = {
             'Heartbeat': Heartbeat,
             'RcInfo': RcInfo,
             'ImuStatus': ImuStatus
         }
-
-        # debug
-        #print('min tti:', self.min_tti, ' heartbeat:', self.test)
-
         logger.info("aplink stack loaded successfully")
+        #logger.debug("min tti:{}".format(self.min_tti))
 
     def load_aplink_config(self):
         config = None
@@ -95,7 +90,7 @@ class APLinkManager:
             self.msg_triggers.update({value['class']: {'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
         # debug
         for key, value in self.msg_triggers.items():
-            print(key, value)
+            logger.info("Key:{} Value:{}".format(key, value))
 
     def get_timer_freq(self):
         return 1000.0/self.min_tti
@@ -105,7 +100,7 @@ class APLinkManager:
             value['tti_count'] += 1
             if value['enabled'] == self.ENABLED:
                 if value['tti_count'] >= value['tti_ms']:
-                    # print("time to send ", key)
+                    #logger.debug("send_message - time to send: {}".format(key))
                     self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
                     self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
                     value['tti_count'] = 0

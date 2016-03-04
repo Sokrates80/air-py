@@ -12,6 +12,7 @@ Revision History:
 20-Jan-2016 Refactor to be compliant with PEP8
 
 """
+import util.airpy_logger as logger
 from receiver.sbus_receiver import SBUSReceiver
 
 
@@ -20,7 +21,7 @@ class RCController:
         # TODO select dynamically the receiver type
         self.rcCtrl = SBUSReceiver()
         self.report = ''
-        print("RCController Started")
+        logger.info("RCController Started")
 
     def update_rx_data(self):
         self.rcCtrl.get_new_data()

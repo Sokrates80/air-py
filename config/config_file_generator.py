@@ -14,14 +14,15 @@ Revision History:
 
 
 class ConfigFileGenerator:
-    def __init__(self):
-        self.config = {}
-        self.config['rcRadio'] = {}
-        self.config['rcRadio']['type'] = 'sbus'
-        self.config['rcRadio']['calibrationStatus'] = False
-        self.config['rcRadio']['channels_default_center'] = [1024, 1024, 1024, 1024]
-        self.config['rcRadio']['channels_default_min'] = [0, 0, 0, 0]
-        self.config['rcRadio']['channels_default_max'] = [2047, 2047, 2047, 2047]
 
+    @classmethod
     def get_default_config_file(self):
-        return self.config
+        return {
+            "rcRadio": {
+                'type': 'sbus',
+                'calibrationStatus': False,
+                'channels_default_center': [1024, 1024, 1024, 1024],
+                'channels_default_min': [0, 0, 0, 0],
+                'channels_default_max':[2047, 2047, 2047, 2047]
+            }
+        }
