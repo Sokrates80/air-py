@@ -18,6 +18,7 @@ import pyb
 import gc
 
 import util.airpy_logger as logger
+from util.airpy_byte_streamer import airpy_byte_streamer
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
@@ -41,8 +42,8 @@ sendByte = False
 sendApLinkMsg = False
 
 led = pyb.LED(4)
-usb = pyb.USB_VCP()
 logger.init(logger.AIRPY_INFO)
+byte_streamer = airpy_byte_streamer()
 tmpByte = bytearray(1)
 
 
@@ -140,9 +141,7 @@ while True:
     if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()
         if tmpByte is not None:
-            pass
-            #usb.write(bytearray(tmpByte))  # send message to the USB
-            #logger.info(tmpByte)
+            byte_streamer.stream_byte(tmpByte)
         sendByte = False
     if sendApLinkMsg:
         aplink.send_message()
