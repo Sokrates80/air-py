@@ -22,6 +22,7 @@ from aplink.ul_scheduler import ULScheduler
 # Import message classes TODO import class dynamically based on the json config file
 from aplink.messages.ap_heartbeat import Heartbeat
 from aplink.messages.ap_rc_info import RcInfo
+from aplink.messages.ap_imu import ImuStatus
 
 
 class APLinkManager:
@@ -68,7 +69,8 @@ class APLinkManager:
 
         self.message_factory = {
             'Heartbeat': Heartbeat,
-            'RcInfo': RcInfo
+            'RcInfo': RcInfo,
+            'ImuStatus': ImuStatus
         }
 
         # debug

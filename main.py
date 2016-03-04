@@ -129,7 +129,7 @@ while True:
         # micropython.mem_info()
         updateLed = False
     if update_attitude:
-        attitudeCtrl.updateState()
+        attitudeCtrl.update_state()
         update_attitude = False
     if sendByte:
         tmpByte = aplink.ul_scheduler.get_message()

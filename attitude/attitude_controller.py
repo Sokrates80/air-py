@@ -32,10 +32,13 @@ class AttitudeController:
     def get_rc_controller(self):
         return self.rc_control
 
-    def updateState(self):
+    def update_state(self):
         self.state.update(self.imu.accel.xyz, self.imu.gyro.xyz, self.imu.mag.xyz)
         # sys.stdout.write(str("Pitch: ") + str(self.state.pitch) + str(" - Roll: ") + str(self.state.roll)+ str(" - Yaw: ") + str(self.state.heading)+str('    \r'))
         # print("Pitch: ", self.state.pitch, " - Roll: ", self.state.roll, " - Yaw: ", self.state.heading)
+
+    def get_attitude_status(self):
+        return [self.state.pitch, self.state.roll, self.state.heading]
 
 """
 p_des = 0;
@@ -47,7 +50,5 @@ k_p_theta*(theta_des-state.rot(2))+k_d_theta*(q_des-state.omega(2));
 k_p_psi*(des_state.yaw-state.rot(3))+k_d_psi*(r_des-state.omega(3));
 
 """
-
-    # def updateAttitude(self):
 
 
