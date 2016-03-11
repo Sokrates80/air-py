@@ -89,8 +89,8 @@ class APLinkManager:
             # calculate normalized triggers for each message
             self.msg_triggers.update({value['class']: {'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
         # debug
-        for key, value in self.msg_triggers.items():
-            logger.info("Key:{} Value:{}".format(key, value))
+        # for key, value in self.msg_triggers.items():
+        #    logger.info("Key:{} Value:{}".format(key, value))
 
     def get_timer_freq(self):
         return 1000.0/self.min_tti

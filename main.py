@@ -107,9 +107,9 @@ timApLink.callback(send_byte)
 logger.info("AirPy v0.0.1 booting...")
 
 cm = ConfigFileManager()
-config = cm.configFile
+#config = cm.configFile
 rcCtrl = RCController()
-attitudeCtrl = AttitudeController()
+attitudeCtrl = AttitudeController(cm)
 attitudeCtrl.set_rc_controller(rcCtrl)
 aplink = APLinkManager(attitudeCtrl)
 

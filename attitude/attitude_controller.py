@@ -14,16 +14,40 @@ Revision History:
 """
 
 # import sys
+import pyb
 from imu.mpu9150 import MPU9150
 from fusion.fusion import Fusion
 import util.airpy_logger as logger
 
 
 class AttitudeController:
-    def __init__(self):
+    def __init__(self, config_m):
         self.rc_control = None
+        self.config_manager = config_m
+
+        # IMU
         self.imu = MPU9150('X')
         self.state = Fusion()
+
+        # Motors
+        self.m1 = pyb.Servo(1)
+        self.m2 = pyb.Servo(2)
+        self.m3 = pyb.Servo(3)
+        self.m4 = pyb.Servo(4)
+
+        # TODO: handling of missing calibration
+
+        self.throttle_min = self.config_manager.get_param_set('rcRadio', 'channels_default_min')[0]
+        self.throttle_max = self.config_manager.get_param_set('rcRadio', 'channels_default_max')[0]
+        self.throttle_center = self.config_manager.get_param_set('rcRadio', 'channels_default_center')[0]
+        logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
+
+        # Motor Range Calibration
+        self.m1.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+        self.m2.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+        self.m3.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+        self.m4.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+
         logger.info("AttitudeController Started")
 
     def set_rc_controller(self, rcCtrl):
@@ -34,11 +58,15 @@ class AttitudeController:
 
     def update_state(self):
         self.state.update(self.imu.accel.xyz, self.imu.gyro.xyz, self.imu.mag.xyz)
+        self.set_thrust(self.m1, self.rc_control.get_channel(1))
         # sys.stdout.write(str("Pitch: ") + str(self.state.pitch) + str(" - Roll: ") + str(self.state.roll)+ str(" - Yaw: ") + str(self.state.heading)+str('    \r'))
         # print("Pitch: ", self.state.pitch, " - Roll: ", self.state.roll, " - Yaw: ", self.state.heading)
 
     def get_attitude_status(self):
         return [self.state.pitch, self.state.roll, self.state.heading]
+
+    def set_thrust(self, motor, pulse_value):
+        motor.pulse_width(pulse_value)
 
 """
 p_des = 0;
