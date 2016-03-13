@@ -23,7 +23,7 @@ class airpy_byte_streamer:
         """
         self.__TRANSPORT = transport
 
-    def _use_usb(self, stream):
+    def _use_usb_write(self, stream):
         """
         Writes the stream to usb
         :param stream: byte stream
@@ -31,10 +31,24 @@ class airpy_byte_streamer:
         """
         self.__USB.write(stream)
 
-    def _use_wifi(self, stream):
+    def _use_usb_read(self):
+        """
+        Read the stream from usb
+        :return: byte stream
+        """
+        return self.__USB.readall()
+
+    def _use_wifi_write(self, stream):
         """
         Writes the stream to wifi
         :param stream: byte stream
+        :return:
+        """
+        pass
+
+    def _use_wifi_read(self):
+        """
+        Read the stream from wifi
         :return:
         """
         pass
@@ -46,6 +60,16 @@ class airpy_byte_streamer:
         :return:
         """
         if self.__TRANSPORT == STREAM_VIA_USB:
-            self._use_usb(bytearray(bytes))
+            self._use_usb_write(bytearray(bytes))
         elif self.__TRANSPORT == STREAM_VIA_WIFI:
-            self._use_wifi(bytearray(bytes))
+            self._use_wifi_write(bytearray(bytes))
+
+    def read_byte(self):
+        """
+        Stream bytes using selected protocol
+        :return: bytes from the stream
+        """
+        if self.__TRANSPORT == STREAM_VIA_USB:
+            return self._use_usb_read()
+        elif self.__TRANSPORT == STREAM_VIA_WIFI:
+            return self._use_wifi_read()

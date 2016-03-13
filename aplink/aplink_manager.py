@@ -16,8 +16,9 @@ import ujson
 
 import util.airpy_logger as logger
 from aplink.header_builder import HeaderBuilder
-from aplink.ul_serializer import ULSerializer
 from aplink.ul_scheduler import ULScheduler
+from aplink.dl_receiver import DLReceiver
+from util.airpy_byte_streamer import airpy_byte_streamer
 
 # Import message classes TODO import class dynamically based on the json config file
 from aplink.messages.ap_heartbeat import Heartbeat
@@ -56,14 +57,14 @@ class APLinkManager:
         # create header builder
         self.header_builder = HeaderBuilder(self.aplink_config)
 
+        # create the Byte Streamer
+        self.byte_streamer = airpy_byte_streamer()
+
         # create the Uplink Scheduler
-        self.ul_scheduler = ULScheduler(self.aplink_config)
+        self.ul_scheduler = ULScheduler(self.aplink_config, self.byte_streamer)
 
-        # create the Uplink Mux
-        # self.ul_mux = ULMux(self.aplink_config, self.ul_scheduler)
-
-        # create the Uplink Serializer
-        # self.ul_ser = ULSerializer(self.aplink_config, self.ul_scheduler)
+        # create the DL Receiver
+        self.dl_receiver = DLReceiver(self.byte_streamer)
 
         self.message_factory = {
             'Heartbeat': Heartbeat,
@@ -95,7 +96,7 @@ class APLinkManager:
     def get_timer_freq(self):
         return 1000.0/self.min_tti
 
-    def send_message(self):
+    def new_message(self):
         for key, value in self.msg_triggers.items():
             value['tti_count'] += 1
             if value['enabled'] == self.ENABLED:

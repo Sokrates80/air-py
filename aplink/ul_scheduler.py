@@ -20,7 +20,7 @@ import gc
 
 
 class ULScheduler:
-    def __init__(self, config):
+    def __init__(self, config, streamer):
 
         # Scheduler Settings
         self.QCI_BYTE_INDEX = config['header']['qci']['index']
@@ -34,6 +34,7 @@ class ULScheduler:
         self.tmpQCI = 3
         self.QCI_BIT_MASK = 248  # First 5 bits 11111000 = 248
         self.tmp_msg = None
+        self.byte_streamer = streamer
 
         # QOS Queues containing ap messages according to the related QCI
 
@@ -94,3 +95,8 @@ class ULScheduler:
             self.QCI0_msg_len[0] = 0
 
         return self.tmp_msg
+
+    def send_message(self):
+        self.get_message()
+        if self.tmp_msg is not None:
+            self.byte_streamer.stream_byte(self.tmp_msg)
