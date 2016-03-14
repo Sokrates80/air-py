@@ -136,6 +136,7 @@ while True:
         update_attitude = False
     if sendByte:
         aplink.ul_scheduler.send_message()
+        aplink.dl_receiver.read_byte()
         sendByte = False
     if newApLinkMsg:
         aplink.new_message()

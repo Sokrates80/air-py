@@ -43,9 +43,9 @@ class APLinkManager:
         self.REPL = 2
 
         # init message triggers
-        self.msg_triggers = {}  # TODO load all message triggers
+        self.msg_triggers = {}
         self.min_tti = self.aplink_config['min_tti_ms']
-        self.get_config_infos(self.aplink_config['messages'])  # TODO set aplink timer according with min tti
+        self.get_config_infos(self.aplink_config['messages'])
         self.tmp_msg = None
 
         # set attitude controller
@@ -64,7 +64,7 @@ class APLinkManager:
         self.ul_scheduler = ULScheduler(self.aplink_config, self.byte_streamer)
 
         # create the DL Receiver
-        self.dl_receiver = DLReceiver(self.byte_streamer)
+        self.dl_receiver = DLReceiver(self, self.byte_streamer, self.header_builder)
 
         self.message_factory = {
             'Heartbeat': Heartbeat,
@@ -88,7 +88,7 @@ class APLinkManager:
     def get_config_infos(self, messages):
         for key, value in messages.items():
             # calculate normalized triggers for each message
-            self.msg_triggers.update({value['class']: {'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
+            self.msg_triggers.update({value['class']: {'message_type_id': value['message_type_id'],'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
         # debug
         # for key, value in self.msg_triggers.items():
         #    logger.info("Key:{} Value:{}".format(key, value))
@@ -105,3 +105,8 @@ class APLinkManager:
                     self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
                     self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
                     value['tti_count'] = 0
+
+    def set_message_status(self, msg_type_id, new_status):
+        for key, value in self.msg_triggers.items():
+            if value['message_type_id'] == msg_type_id:
+                value['enabled'] = new_status

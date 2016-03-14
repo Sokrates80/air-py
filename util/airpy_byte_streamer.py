@@ -33,10 +33,10 @@ class airpy_byte_streamer:
 
     def _use_usb_read(self):
         """
-        Read the stream from usb
-        :return: byte stream
+        Read one byte from usb
+        :return: 1 read byte
         """
-        return self.__USB.readall()
+        return self.__USB.read(1)
 
     def _use_wifi_write(self, stream):
         """
