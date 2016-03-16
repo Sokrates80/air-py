@@ -30,10 +30,8 @@ class AttitudeController:
         self.state = Fusion()
 
         # Motors
-        self.m1 = pyb.Servo(1)
-        self.m2 = pyb.Servo(2)
-        self.m3 = pyb.Servo(3)
-        self.m4 = pyb.Servo(4)
+        self._num_motors = self.config_manager.get_param('num_motors')
+        self._motors = [pyb.Servo(index) for index in range(1, self._num_motors+1)]
 
         # TODO: handling of missing calibration
 
@@ -43,22 +41,21 @@ class AttitudeController:
         logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
 
         # Motor Range Calibration
-        self.m1.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
-        self.m2.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
-        self.m3.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
-        self.m4.calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+        for i in range(0, self._num_motors):
+            self._motors[i].calibration(self.throttle_min, self.throttle_max, self.throttle_center)
 
         logger.info("AttitudeController Started")
 
-    def set_rc_controller(self, rcCtrl):
-        self.rc_control = rcCtrl
+    def set_rc_controller(self, rc_ctrl):
+        self.rc_control = rc_ctrl
 
     def get_rc_controller(self):
         return self.rc_control
 
     def update_state(self):
         self.state.update(self.imu.accel.xyz, self.imu.gyro.xyz, self.imu.mag.xyz)
-        self.set_thrust(self.m1, self.rc_control.get_channel(1))
+        self.set_thrust(self._motors[0], self.rc_control.get_channel(1))
+        # self.set_thrust(self.m1, self.rc_control.get_channel(1))
         # sys.stdout.write(str("Pitch: ") + str(self.state.pitch) + str(" - Roll: ") + str(self.state.roll)+ str(" - Yaw: ") + str(self.state.heading)+str('    \r'))
         # print("Pitch: ", self.state.pitch, " - Roll: ", self.state.roll, " - Yaw: ", self.state.heading)
 

@@ -18,11 +18,12 @@ class ConfigFileGenerator:
     @classmethod
     def get_default_config_file(self):
         return {
+            "num_motors": 4,
             "rcRadio": {
                 'type': 'sbus',
                 'calibrationStatus': False,
                 'channels_default_center': [1024, 1024, 1024, 1024],
                 'channels_default_min': [0, 0, 0, 0],
-                'channels_default_max':[2047, 2047, 2047, 2047]
+                'channels_default_max': [2047, 2047, 2047, 2047]
             }
         }

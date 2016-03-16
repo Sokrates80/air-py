@@ -32,3 +32,6 @@ class ConfigFileManager:
 
     def get_param_set(self, param_set, param_name):
         return self.configFile[param_set][param_name]
+
+    def get_param(self, param):
+        return self.configFile[param]
