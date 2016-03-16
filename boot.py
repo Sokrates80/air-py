@@ -9,8 +9,7 @@ from util.airpy_config_utils import save_config_file, load_config_file
 #pyb.main('test_i2c.py') # main script to run after this one
 #pyb.main('irqtest.py') # main script to run after this one
 pyb.main('main.py') # main script to run after this one
-#pyb.usb_mode('CDC+MSC') # act as a serial and a storage device
-#pyb.usb_mode('CDC+HID') # act as a serial device and a mouse
+
 
 config = load_config_file("app_config.json")
 config['serial_only'] = False

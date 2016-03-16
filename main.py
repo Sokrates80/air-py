@@ -18,7 +18,6 @@ import pyb
 import gc
 
 import util.airpy_logger as logger
-from util.airpy_byte_streamer import airpy_byte_streamer
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
@@ -39,11 +38,10 @@ updateLed = False
 update_rx = False
 update_attitude = False
 sendByte = False
-sendApLinkMsg = False
+newApLinkMsg = False
 
 led = pyb.LED(4)
 logger.init(logger.AIRPY_INFO)
-byte_streamer = airpy_byte_streamer()
 tmpByte = bytearray(1)
 
 
@@ -53,8 +51,8 @@ def send_byte(timApLink):
 
 
 def send_message(timApLinkMsg):
-    global sendApLinkMsg
-    sendApLinkMsg = True
+    global newApLinkMsg
+    newApLinkMsg = True
 
 
 def status_led(tim1):
@@ -68,7 +66,7 @@ def update_rx_data(timRx):
     update_rx = True
 
 
-def updateAttitude(timAttitude):
+def update_attitude_state(timAttitude):
     global update_attitude
     update_attitude = True
 
@@ -85,7 +83,7 @@ def print_report():
             rcCtrl.get_channel(4),
             rcCtrl.get_link_status())
     logger.info(full_report)
-    #ulScheduler.add_msg(s_rep.encode('ascii'))
+    # ulScheduler.add_msg(s_rep.encode('ascii'))
     # sys.stdout.write(s_rep + '    \r')
 
 
@@ -107,9 +105,8 @@ timApLink.callback(send_byte)
 logger.info("AirPy v0.0.1 booting...")
 
 cm = ConfigFileManager()
-config = cm.configFile
 rcCtrl = RCController()
-attitudeCtrl = AttitudeController()
+attitudeCtrl = AttitudeController(cm)
 attitudeCtrl.set_rc_controller(rcCtrl)
 aplink = APLinkManager(attitudeCtrl)
 
@@ -121,7 +118,7 @@ timApLinkMsg.callback(send_message)
 # Timer for the attitude controller
 timAttitude = pyb.Timer(12)
 timAttitude.init(freq=20)
-timAttitude.callback(updateAttitude)
+timAttitude.callback(update_attitude_state)
 
 logger.info("timer freq:{}".format(aplink.get_timer_freq()))
 logger.system("Just a system test. Should create a system log")
@@ -131,7 +128,6 @@ while True:
         rcCtrl.update_rx_data()
         update_rx = False
     if updateLed:
-        # print_report()
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
         updateLed = False
@@ -139,10 +135,9 @@ while True:
         attitudeCtrl.update_state()
         update_attitude = False
     if sendByte:
-        tmpByte = aplink.ul_scheduler.get_message()
-        if tmpByte is not None:
-            byte_streamer.stream_byte(tmpByte)
+        aplink.ul_scheduler.send_message()
+        aplink.dl_receiver.read_byte()
         sendByte = False
-    if sendApLinkMsg:
-        aplink.send_message()
-        sendApLinkMsg = False
+    if newApLinkMsg:
+        aplink.new_message()
+        newApLinkMsg = False
