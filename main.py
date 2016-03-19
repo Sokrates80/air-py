@@ -21,6 +21,7 @@ import util.airpy_logger as logger
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
+from attitude.motor_driver import MotorDriver
 from config.config_file_manager import ConfigFileManager
 from receiver.rc_controller import RCController
 
@@ -37,6 +38,7 @@ state = IDLE
 updateLed = False
 update_rx = False
 update_attitude = False
+update_motors = False
 sendByte = False
 newApLinkMsg = False
 
@@ -69,6 +71,11 @@ def update_rx_data(timRx):
 def update_attitude_state(timAttitude):
     global update_attitude
     update_attitude = True
+
+
+def update_motors_state(timMotors):
+    global update_motors
+    update_motors = True
 
 
 # for debug
@@ -108,6 +115,7 @@ cm = ConfigFileManager()
 rcCtrl = RCController()
 attitudeCtrl = AttitudeController(cm)
 attitudeCtrl.set_rc_controller(rcCtrl)
+motor_driver = MotorDriver(cm, attitudeCtrl)
 aplink = APLinkManager(attitudeCtrl)
 
 # Timer for the aplink message factory
@@ -115,29 +123,42 @@ timApLinkMsg = pyb.Timer(10)
 timApLinkMsg.init(freq=aplink.get_timer_freq())
 timApLinkMsg.callback(send_message)
 
-# Timer for the attitude controller
+# Timer for the attitude state update
 timAttitude = pyb.Timer(12)
-timAttitude.init(freq=20)
+timAttitude.init(freq=50)
 timAttitude.callback(update_attitude_state)
 
-logger.info("timer freq:{}".format(aplink.get_timer_freq()))
-logger.system("Just a system test. Should create a system log")
+# Timer for the motors state update
+timMotors = pyb.Timer(13)
+timMotors.init(freq=200)
+timMotors.callback(update_motors_state)
+
+# logger.system("Just a system test. Should create a system log")
 
 while True:
     if update_rx:
         rcCtrl.update_rx_data()
         update_rx = False
+
     if updateLed:
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
         updateLed = False
+
     if update_attitude:
         attitudeCtrl.update_state()
         update_attitude = False
+
+    if update_motors:
+        motor_driver.set_thrust_passthrough()
+        update_motors = False
+
     if sendByte:
         aplink.ul_scheduler.send_message()
         aplink.dl_receiver.read_byte()
         sendByte = False
+
     if newApLinkMsg:
         aplink.new_message()
         newApLinkMsg = False
+

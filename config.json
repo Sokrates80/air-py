@@ -1,1 +1,1 @@
-{"num_motors": 4, "rcRadio": {"type": "sbus", "calibrationStatus": true, "channels_default_min": [200, 200, 200, 200], "channels_default_max": [1800, 1800, 1800, 1800], "channels_default_center": [900, 900, 900, 900]}}
+{"num_motors": 4, "rcRadio": {"type": "sbus", "calibrationStatus": true, "esc_pwm_min_cmd": 1000, "esc_pwm_min_center": 1500, "esc_pwm_min": 1150, "esc_pwm_max": 2000,"channels_default_min": [172, 172, 172, 172], "channels_default_max": [1811, 1811, 1811, 1811], "channels_default_center": [992, 992, 992, 992]}}
