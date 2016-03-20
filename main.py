@@ -23,6 +23,7 @@ from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
 from attitude.motor_driver import MotorDriver
 from config.config_file_manager import ConfigFileManager
+from util.airpy_config_utils import save_config_file, load_config_file
 from receiver.rc_controller import RCController
 
 
@@ -104,16 +105,18 @@ timRx = pyb.Timer(2)
 timRx.init(freq=2778)
 timRx.callback(update_rx_data)
 
-# Timer for the aplink uplink mux
+# Timer for the aplink uplink mux. TODO: Read RxTiming from Setting
 timApLink = pyb.Timer(4)
 timApLink.init(freq=2000)
 timApLink.callback(send_byte)
 
 logger.info("AirPy v0.0.1 booting...")
 
+# load user and application configuration files
 cm = ConfigFileManager()
+app_config = load_config_file("app_config.json")
 rcCtrl = RCController()
-attitudeCtrl = AttitudeController(cm)
+attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'])
 attitudeCtrl.set_rc_controller(rcCtrl)
 motor_driver = MotorDriver(cm, attitudeCtrl)
 aplink = APLinkManager(attitudeCtrl)
@@ -125,12 +128,12 @@ timApLinkMsg.callback(send_message)
 
 # Timer for the attitude state update
 timAttitude = pyb.Timer(12)
-timAttitude.init(freq=50)
+timAttitude.init(freq=app_config['IMU_refresh_rate'])
 timAttitude.callback(update_attitude_state)
 
 # Timer for the motors state update
 timMotors = pyb.Timer(13)
-timMotors.init(freq=200)
+timMotors.init(freq=app_config['PWM_refresh_rate'])
 timMotors.callback(update_motors_state)
 
 # logger.system("Just a system test. Should create a system log")

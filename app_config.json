@@ -1,1 +1,1 @@
-{"serial_only": false, "fs_root": ""}
+{"serial_only": false, "fs_root": "", "IMU_refresh_rate": 50, "PWM_refresh_rate": 200}

@@ -20,13 +20,21 @@ import util.airpy_logger as logger
 
 
 class AttitudeController:
-    def __init__(self, config_m):
+    def __init__(self, config_m, imu_update_freq):
         self.rc_control = None
         self.config_manager = config_m
 
         # IMU
         self.imu = MPU9150('X')
         self.state = Fusion()
+        self.sampling_time = 1/imu_update_freq  # seconds
+
+        # PD Controller
+        self.p_desired = 0  # hovering
+        self.q_desired = 0  # hovering
+        self.r_des = 0
+        self.phi_desired = 0  # hovering
+        self.theta_desired = 0  # hovering
 
         logger.info("AttitudeController Started")
 
@@ -45,6 +53,9 @@ class AttitudeController:
 
     def get_attitude_status(self):
         return [self.state.pitch, self.state.roll, self.state.heading]
+
+    def compute_pd_increment(self):
+        pass
 
 """
 p_des = 0;
