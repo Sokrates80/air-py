@@ -23,7 +23,7 @@ from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
 from attitude.motor_driver import MotorDriver
 from config.config_file_manager import ConfigFileManager
-from util.airpy_config_utils import save_config_file, load_config_file
+from util.airpy_config_utils import load_config_file
 from receiver.rc_controller import RCController
 
 
@@ -44,6 +44,7 @@ sendByte = False
 newApLinkMsg = False
 
 led = pyb.LED(4)
+led_armed = pyb.LED(1)
 logger.init(logger.AIRPY_INFO)
 tmpByte = bytearray(1)
 
@@ -76,8 +77,20 @@ def update_attitude_state(timAttitude):
 
 def update_motors_state(timMotors):
     global update_motors
-    update_motors = True
+    global state
+    if state == ARMED:
+        update_motors = True
 
+
+def set_state(new_state):
+    global state
+    global led_armed
+    if new_state == ARMED:
+        state = ARMED
+        led_armed.on()
+    if new_state == IDLE:
+        state = IDLE
+        led_armed.off()
 
 # for debug
 def print_report():
@@ -95,7 +108,7 @@ def print_report():
     # sys.stdout.write(s_rep + '    \r')
 
 
-# Init Timer for status led and report
+# Init Timer for status led
 tim1 = pyb.Timer(1)
 tim1.init(freq=1)
 tim1.callback(status_led)
@@ -141,6 +154,9 @@ timMotors.callback(update_motors_state)
 while True:
     if update_rx:
         rcCtrl.update_rx_data()
+        if state == IDLE:
+            if rcCtrl.check_arming():
+                set_state(ARMED)
         update_rx = False
 
     if updateLed:
@@ -153,7 +169,11 @@ while True:
         update_attitude = False
 
     if update_motors:
-        motor_driver.set_thrust_passthrough()
+        # motor_driver.set_thrust_passthrough()
+        if state == IDLE:
+            motor_driver.set_zero_thrust()
+        elif state == ARMED:
+            motor_driver.set_thrust()
         update_motors = False
 
     if sendByte:

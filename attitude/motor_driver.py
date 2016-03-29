@@ -2,7 +2,7 @@
 """
 AirPy - MicroPython based autopilot v. 0.0.1
 
-Created on Sun Dec 13 23:32:24 2015
+Created on Sun Mar 20 23:32:24 2016
 
 @author: Fabrizio Scimia
 
@@ -19,6 +19,9 @@ class MotorDriver:
         self.rc_control = attitude_ctrl.get_rc_controller()
         self.config_manager = config_m
         self.tmp_pwm = None
+        self.tmp_pulse_width = None
+        self.tmp_thrust = None
+        self.tmp_pid = None
 
         # Motors
         self._num_motors = self.config_manager.get_param('num_motors')
@@ -32,6 +35,10 @@ class MotorDriver:
         self._esc_low_range = self._esc_pwm_min_center - self._esc_pwm_min
         self._esc_high_range = self._esc_pwm_max - self._esc_pwm_min_center
 
+        # Set the esc pwm range in the attitude ctrl. it is not elegant but saves avoid calculating it each time at
+        # pwm rate
+        self.attitude_controller.set_esc_range(self._esc_pwm_max - self._esc_pwm_min)
+
         # TODO: handling of missing calibration
 
         self.throttle_min = self.config_manager.get_param_set('rcRadio', 'channels_default_min')[0]
@@ -39,7 +46,6 @@ class MotorDriver:
         self.throttle_center = self.config_manager.get_param_set('rcRadio', 'channels_default_center')[0]
         self.throttle_low_range = self.throttle_center - self.throttle_min
         self.throttle_high_range = self.throttle_max - self.throttle_center
-        logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
 
         # Test
         # for k in range(180,1800,20):
@@ -49,6 +55,7 @@ class MotorDriver:
         for i in range(0, self._num_motors):
             self._motors[i].calibration(self._esc_pwm_min_cmd, self._esc_pwm_max, self._esc_pwm_min_center)
 
+        logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
         logger.info("Motor Driver Started")
 
     def get_pwm_from_range(self, pulse_width):
@@ -67,3 +74,54 @@ class MotorDriver:
         # set the thrust of all the motors without attitude contribution
         for j in range(0, self._num_motors):
             self._motors[j].pulse_width(self.get_pwm_from_range(self.rc_control.get_channel(1)))
+
+    def set_zero_thrust(self):
+        # set the thrust of all the motors to 0. Used for esc setup
+        for j in range(0, self._num_motors):
+            self._motors[j].pulse_width(self._esc_pwm_min)
+
+    def set_thrust(self):
+        # set the thrust of all the motors without attitude contribution TODO: generalize for more than 4 motors
+        self.tmp_thrust = self.get_pwm_from_range(self.rc_control.get_channel(1))
+        self.tmp_pid = self.attitude_controller.get_pid_increment()
+
+        for j in range(0, self._num_motors):
+            if j == 0:
+                # motor front right
+                self.tmp_pulse_width = self.tmp_thrust + self.tmp_pid
+                if self.tmp_pulse_width < self._esc_pwm_min:
+                    self._motors[j].pulse_width(self._esc_pwm_min)
+                elif self.tmp_pulse_width > self._esc_pwm_max:
+                    self._motors[j].pulse_width(self._esc_pwm_max)
+                else:
+                    self._motors[j].pulse_width(self.tmp_pulse_width)
+
+            elif j == 1:
+                # motor rear left
+                self.tmp_pulse_width = self.tmp_thrust - self.tmp_pid
+                if self.tmp_pulse_width < self._esc_pwm_min:
+                    self._motors[j].pulse_width(self._esc_pwm_min)
+                elif self.tmp_pulse_width > self._esc_pwm_max:
+                    self._motors[j].pulse_width(self._esc_pwm_max)
+                else:
+                    self._motors[j].pulse_width(self.tmp_pulse_width)
+
+            elif j == 2:
+                # motor front left
+                self.tmp_pulse_width = self.tmp_thrust + self.tmp_pid
+                if self.tmp_pulse_width < self._esc_pwm_min:
+                    self._motors[j].pulse_width(self._esc_pwm_min)
+                elif self.tmp_pulse_width > self._esc_pwm_max:
+                    self._motors[j].pulse_width(self._esc_pwm_max)
+                else:
+                    self._motors[j].pulse_width(self.tmp_pulse_width)
+
+            elif j == 3:
+                # motor rear right
+                self.tmp_pulse_width = self.tmp_thrust - self.tmp_pid
+                if self.tmp_pulse_width < self._esc_pwm_min:
+                    self._motors[j].pulse_width(self._esc_pwm_min)
+                elif self.tmp_pulse_width > self._esc_pwm_max:
+                    self._motors[j].pulse_width(self._esc_pwm_max)
+                else:
+                    self._motors[j].pulse_width(self.tmp_pulse_width)

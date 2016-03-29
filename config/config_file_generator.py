@@ -19,6 +19,14 @@ class ConfigFileGenerator:
     def get_default_config_file(self):
         return {
             "num_motors": 4,
+            "attitude": {
+                'max_increment': 0.5,
+                'max_pitch': 10,
+                'max_roll': 10,
+                'Kp': 0.5,
+                'Kd': 0.001,
+                'Ki': 0
+            },
             "rcRadio": {
                 'type': 'sbus',
                 'calibrationStatus': False,
