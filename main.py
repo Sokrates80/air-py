@@ -21,7 +21,7 @@ import util.airpy_logger as logger
 
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
-from attitude.motor_driver import MotorDriver
+from attitude.esc_controller import EscController
 from config.config_file_manager import ConfigFileManager
 from util.airpy_config_utils import load_config_file
 from receiver.rc_controller import RCController
@@ -34,8 +34,8 @@ micropython.alloc_emergency_exception_buf(100)
 IDLE = 0
 ARMED = 1
 FAIL_SAFE = 2
-
 state = IDLE
+
 updateLed = False
 update_rx = False
 update_attitude = False
@@ -75,13 +75,6 @@ def update_attitude_state(timAttitude):
     update_attitude = True
 
 
-def update_motors_state(timMotors):
-    global update_motors
-    global state
-    if state == ARMED:
-        update_motors = True
-
-
 def set_state(new_state):
     global state
     global led_armed
@@ -91,22 +84,6 @@ def set_state(new_state):
     if new_state == IDLE:
         state = IDLE
         led_armed.off()
-
-# for debug
-def print_report():
-    report = rcCtrl.get_report()
-    full_report = "Valid Frames:{}  - Lost Frames:{}  - CH1:{}, CH2:{}, CH3:{}, CH4:{} - Failsafe:{}".format(
-            report['Valid Frames'],
-            report['Lost Frames'],
-            rcCtrl.get_channel(1),
-            rcCtrl.get_channel(2),
-            rcCtrl.get_channel(3),
-            rcCtrl.get_channel(4),
-            rcCtrl.get_link_status())
-    logger.info(full_report)
-    # ulScheduler.add_msg(s_rep.encode('ascii'))
-    # sys.stdout.write(s_rep + '    \r')
-
 
 # Init Timer for status led
 tim1 = pyb.Timer(1)
@@ -131,7 +108,7 @@ app_config = load_config_file("app_config.json")
 rcCtrl = RCController()
 attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'])
 attitudeCtrl.set_rc_controller(rcCtrl)
-motor_driver = MotorDriver(cm, attitudeCtrl)
+esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
 aplink = APLinkManager(attitudeCtrl)
 
 # Timer for the aplink message factory
@@ -144,37 +121,33 @@ timAttitude = pyb.Timer(12)
 timAttitude.init(freq=app_config['IMU_refresh_rate'])
 timAttitude.callback(update_attitude_state)
 
-# Timer for the motors state update
-timMotors = pyb.Timer(13)
-timMotors.init(freq=app_config['PWM_refresh_rate'])
-timMotors.callback(update_motors_state)
-
 # logger.system("Just a system test. Should create a system log")
 
 while True:
     if update_rx:
         rcCtrl.update_rx_data()
-        if state == IDLE:
-            if rcCtrl.check_arming():
-                set_state(ARMED)
         update_rx = False
 
     if updateLed:
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
+        if state == IDLE:
+            if rcCtrl.check_arming():
+                set_state(ARMED)
+                logger.info("Set status to ARMED")
+        elif state == ARMED:
+            if rcCtrl.check_idle():
+                set_state(IDLE)
+                logger.info("Set status to IDLE")
         updateLed = False
 
     if update_attitude:
         attitudeCtrl.update_state()
-        update_attitude = False
-
-    if update_motors:
-        # motor_driver.set_thrust_passthrough()
         if state == IDLE:
-            motor_driver.set_zero_thrust()
+            esc_ctrl.set_zero_thrust()
         elif state == ARMED:
-            motor_driver.set_thrust()
-        update_motors = False
+            esc_ctrl.set_thrust_passthrough()
+        update_attitude = False
 
     if sendByte:
         aplink.ul_scheduler.send_message()

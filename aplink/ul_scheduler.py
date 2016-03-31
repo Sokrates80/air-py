@@ -55,10 +55,10 @@ class ULScheduler:
         # self.QCI2Count = 0
         # self.QCI3Count = 0
 
-        log_msg = "UL Scheduler loaded, QCI weights = " + str(self.QCI0_weight)
+        #log_msg = "UL Scheduler loaded, QCI weights = " + str(self.QCI0_weight)
         # log_msg += ',' + str(self.QCI1_weight)+',' + str(self.QCI2_weight) + ',' + str(self.QCI3_weight)
 
-        logger.info(log_msg)
+        #logger.info(log_msg)
 
     def schedule_message(self, msg):
         # TODO handle msg discarding if buffer is full

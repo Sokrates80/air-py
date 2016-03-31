@@ -28,12 +28,12 @@ class MotorDriver:
         self._motors = [pyb.Servo(index) for index in range(1, self._num_motors+1)]
 
         # ESC
-        self._esc_pwm_min_cmd = self.config_manager.get_param_set('rcRadio', 'esc_pwm_min_cmd')
-        self._esc_pwm_min_center = self.config_manager.get_param_set('rcRadio', 'esc_pwm_min_center')
-        self._esc_pwm_min = self.config_manager.get_param_set('rcRadio', 'esc_pwm_min')
-        self._esc_pwm_max = self.config_manager.get_param_set('rcRadio', 'esc_pwm_max')
-        self._esc_low_range = self._esc_pwm_min_center - self._esc_pwm_min
-        self._esc_high_range = self._esc_pwm_max - self._esc_pwm_min_center
+        self._esc_pwm_min_cmd = self.config_manager.get_param_set('esc', 'esc_pwm_min_cmd')
+        self._esc_pwm_center = self.config_manager.get_param_set('esc', 'esc_pwm_center')
+        self._esc_pwm_min = self.config_manager.get_param_set('esc', 'esc_pwm_min')
+        self._esc_pwm_max = self.config_manager.get_param_set('esc', 'esc_pwm_max')
+        self._esc_low_range = self._esc_pwm_center - self._esc_pwm_min
+        self._esc_high_range = self._esc_pwm_max - self._esc_pwm_center
 
         # Set the esc pwm range in the attitude ctrl. it is not elegant but saves avoid calculating it each time at
         # pwm rate
@@ -53,7 +53,7 @@ class MotorDriver:
 
         # Motor Range Calibration
         for i in range(0, self._num_motors):
-            self._motors[i].calibration(self._esc_pwm_min_cmd, self._esc_pwm_max, self._esc_pwm_min_center)
+            self._motors[i].calibration(self._esc_pwm_min_cmd, self._esc_pwm_max, self._esc_pwm_center)
 
         logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
         logger.info("Motor Driver Started")
@@ -67,7 +67,7 @@ class MotorDriver:
         if pulse_width <= self.throttle_center:
             self.tmp_pwm = self._esc_pwm_min_cmd + int(round((pulse_width/self.throttle_low_range)*self._esc_low_range))
         else:
-            self.tmp_pwm = int(round(self._esc_pwm_min_center + ((pulse_width-self.throttle_center)/self.throttle_high_range)*self._esc_high_range))
+            self.tmp_pwm = int(round(self._esc_pwm_center + ((pulse_width - self.throttle_center) / self.throttle_high_range) * self._esc_high_range))
         return self.tmp_pwm
 
     def set_thrust_passthrough(self):

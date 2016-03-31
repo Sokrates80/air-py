@@ -5,17 +5,20 @@ import machine
 import pyb
 from util.airpy_config_utils import save_config_file, load_config_file
 
-
-#pyb.main('test_i2c.py') # main script to run after this one
-#pyb.main('irqtest.py') # main script to run after this one
-pyb.main('main.py') # main script to run after this one
-
-
 config = load_config_file("app_config.json")
 config['serial_only'] = False
 
+boot_delay = 2000
+
+if config['esc_calibration_mode']:
+    pyb.main('./attitude/esc_calibration.py')
+    config['esc_calibration_mode'] = False
+    boot_delay = 0  # avoid the boot delay to proceed with esc calibration
+else:
+    pyb.main('main.py') # main script to run after this one
+
 pyb.LED(3).on()                 # indicate we are waiting for switch press
-pyb.delay(2000)                 # wait for user to maybe press the switch
+pyb.delay(boot_delay)                 # wait for user to maybe press the switch
 switch_value = pyb.Switch()()   # sample the switch at end of delay
 pyb.LED(3).off()                # indicate that we finished waiting for the switch
 

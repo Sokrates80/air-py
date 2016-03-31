@@ -24,6 +24,9 @@ class RCController:
         self.report = ''
         self.start_timer = 0
         self.time_count = 0
+        self._IDLE = 0
+        self._ARMED = 1
+
         logger.info("RCController Started")
 
     def update_rx_data(self):
@@ -33,8 +36,23 @@ class RCController:
         check = False
         if self.get_channel(1) < 250 and self.get_channel(3) < 250 and self.get_channel(4) > 1600:
             if self.start_timer > 0:
-                if pyb.elapsed_millis(self.start_timer) > 3000: # 3 sec
+                if pyb.elapsed_millis(self.start_timer) > 3000:  # 3 sec
                     check = True
+                    self.start_timer = 0
+            else:
+                self.start_timer = pyb.millis()
+        else:
+            self.start_timer = 0
+
+        return check
+
+    def check_idle(self):
+        check = False
+        if self.get_channel(1) < 250:
+            if self.start_timer > 0:
+                if pyb.elapsed_millis(self.start_timer) > 5000:  # 5 sec
+                    check = True
+                    self.start_timer = 0
             else:
                 self.start_timer = pyb.millis()
         else:
