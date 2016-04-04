@@ -10,12 +10,12 @@ config['serial_only'] = False
 
 boot_delay = 2000
 
-if config['esc_calibration_mode']:
+if config['esc_calibration_mode']:  # if esc calibration is true set esc_calibration script to run after this one
     pyb.main('./attitude/esc_calibration.py')
     config['esc_calibration_mode'] = False
     boot_delay = 0  # avoid the boot delay to proceed with esc calibration
 else:
-    pyb.main('main.py') # main script to run after this one
+    pyb.main('main.py')  # if esc calibration is false set main script to run after this one
 
 pyb.LED(3).on()                 # indicate we are waiting for switch press
 pyb.delay(boot_delay)                 # wait for user to maybe press the switch

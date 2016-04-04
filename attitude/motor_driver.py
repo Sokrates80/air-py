@@ -55,7 +55,7 @@ class MotorDriver:
         for i in range(0, self._num_motors):
             self._motors[i].calibration(self._esc_pwm_min_cmd, self._esc_pwm_max, self._esc_pwm_center)
 
-        logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
+        # logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
         logger.info("Motor Driver Started")
 
     def get_pwm_from_range(self, pulse_width):

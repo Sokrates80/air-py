@@ -39,7 +39,8 @@ class AttitudeController:
         self._Ki = self.config_manager.get_param_set('attitude', 'Ki')
         self.pid_controller_pitch = PIDController()
         self.pid_controller_pitch.set_tunings(self._Kp, self._Kd, self._Ki, self._sampling_time, -1, 1)
-        # self._pid_controller_roll = PIDController(self._Kp, self._Kd, self._Ki)
+        self.pid_controller_roll = PIDController()
+        self.pid_controller_roll.set_tunings(self._Kp, self._Kd, self._Ki, self._sampling_time, -1, 1)
         self.pid_pitch_value = 0
         self.pid_roll_value = 0
         self._esc_range = 0
@@ -65,13 +66,14 @@ class AttitudeController:
         self.state.update(self.imu.accel.xyz, self.imu.gyro.xyz, self.imu.mag.xyz)
 
         # TODO: desired state = 0 is only for hoovering
-        self.pid_pitch_value = int(round(self.pid_controller_pitch.get_pid(self.state.pitch/self._max_pitch, 0)*self._esc_range))
+        self.pid_pitch_value = int(self.pid_controller_pitch.get_pid(self.state.pitch/self._max_pitch, 0)*self._esc_range)
+        self.pid_roll_value = int(self.pid_controller_roll.get_pid(self.state.roll/self._max_roll, 0)*self._esc_range)
         # logger.debug("{};{}".format(self.state.pitch, self.pid_pitch_value))
 
     def get_attitude_status(self):
         return [self.state.pitch, self.state.roll, self.state.heading]
 
     def get_pid_increment(self):
-        return self.pid_pitch_value
+        return [self.pid_pitch_value, self.pid_roll_value]
 
 

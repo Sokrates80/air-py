@@ -88,7 +88,10 @@ class APLinkManager:
     def get_config_infos(self, messages):
         for key, value in messages.items():
             # calculate normalized triggers for each message
-            self.msg_triggers.update({value['class']: {'message_type_id': value['message_type_id'],'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
+            self.msg_triggers.update({value['class']: {'message_type_id': value['message_type_id'],
+                                                       'enabled': value['enabled'],
+                                                       'tti_ms': value['tti_ms']/self.min_tti,
+                                                       'tti_count': 0}})
         # debug
         # for key, value in self.msg_triggers.items():
         #    logger.info("Key:{} Value:{}".format(key, value))

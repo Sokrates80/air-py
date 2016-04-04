@@ -34,6 +34,8 @@ micropython.alloc_emergency_exception_buf(100)
 IDLE = 0
 ARMED = 1
 FAIL_SAFE = 2
+
+# set initial state as IDLE
 state = IDLE
 
 updateLed = False
@@ -85,21 +87,6 @@ def set_state(new_state):
         state = IDLE
         led_armed.off()
 
-# Init Timer for status led
-tim1 = pyb.Timer(1)
-tim1.init(freq=1)
-tim1.callback(status_led)
-
-# Init Rx Timing at 300us (Frsky specific). TODO: Read RxTiming from Setting
-timRx = pyb.Timer(2)
-timRx.init(freq=2778)
-timRx.callback(update_rx_data)
-
-# Timer for the aplink uplink mux. TODO: Read RxTiming from Setting
-timApLink = pyb.Timer(4)
-timApLink.init(freq=2000)
-timApLink.callback(send_byte)
-
 logger.info("AirPy v0.0.1 booting...")
 
 # load user and application configuration files
@@ -110,6 +97,21 @@ attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'])
 attitudeCtrl.set_rc_controller(rcCtrl)
 esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
 aplink = APLinkManager(attitudeCtrl)
+
+# Init Timer for status led (1 sec interval)
+tim1 = pyb.Timer(1)
+tim1.init(freq=1)
+tim1.callback(status_led)
+
+# Init Rx Timing at 300us (Frsky specific). TODO: Read Rx freq from rc_ctrl
+timRx = pyb.Timer(2)
+timRx.init(freq=2778)
+timRx.callback(update_rx_data)
+
+# Timer for the aplink uplink mux. TODO: Read freq from Setting
+timApLink = pyb.Timer(4)
+timApLink.init(freq=aplink.get_timer_freq()*10)
+timApLink.callback(send_byte)
 
 # Timer for the aplink message factory
 timApLinkMsg = pyb.Timer(10)
@@ -146,7 +148,8 @@ while True:
         if state == IDLE:
             esc_ctrl.set_zero_thrust()
         elif state == ARMED:
-            esc_ctrl.set_thrust_passthrough()
+            #esc_ctrl.set_thrust_passthrough()
+            esc_ctrl.set_thrust()
         update_attitude = False
 
     if sendByte:
