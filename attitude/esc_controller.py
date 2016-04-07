@@ -10,7 +10,7 @@ Created on Sun Mar 30 23:32:24 2016
 
 from pyb import Pin, Timer
 import util.airpy_logger as logger
-
+import array
 
 class EscController:
 
@@ -49,7 +49,9 @@ class EscController:
         # PWM initialization TODO: hexacopter handling
         self._num_motors = self.config_manager.get_param('num_motors')
 
-        self.tmp_pulse_width = [0 for x in range(0, self._num_motors)]
+        # TODO: GENERALIZE
+        # self.tmp_pulse_width = array.array('H', (0,)*self._num_motors)
+        self.tmp_pulse_width = array.array('H', [0, 0, 0, 0])
 
         # set PWM to 400Hz TODO: set freq according to settings
         self._timers = [Timer(self.config_manager.get_param_set('esc', 'quadcopter')['timers'][index],
@@ -70,6 +72,9 @@ class EscController:
 
         logger.info("Esc Controller Started")
 
+    def get_pulse_widths(self):
+        return self.tmp_pulse_width
+
     def get_pwm_from_range(self, pulse_width):
         """
         Used to convert the Rc pulse width dynamic to the ESC specific dynamic
@@ -88,11 +93,13 @@ class EscController:
         # set the thrust of all the motors without attitude contribution
         self.tmp_thrust = self.get_pwm_from_range(self.rc_control.get_channel(1))
         # print(self.tmp_thrust)
+        self.tmp_pulse_width = [self.tmp_thrust for i in range(0, self._num_motors)]
         for j in range(0, self._num_motors):
             self._escs[j].pulse_width(self.tmp_thrust)
 
     def set_zero_thrust(self):
         # set the thrust of all the motors to 0. Used for esc setup
+        self.tmp_pulse_width = [self._esc_pwm_min_cmd for i in range(0, self._num_motors)]
         for j in range(0, self._num_motors):
             self._escs[j].pulse_width(self._esc_pwm_min_cmd)
 
@@ -104,14 +111,19 @@ class EscController:
             # DEBUG PID
             # logger.debug("{};{};{}".format(self.tmp_thrust, self.tmp_pid_pitch, self.tmp_pid_roll))
             # TODO: Generalize for quad and hex
-            self._escs[0].pulse_width(min(max(self._esc_pwm_min, self.tmp_thrust + self.tmp_pid_pitch + self.tmp_pid_roll),
-                                          self._esc_pwm_max))
-            self._escs[1].pulse_width(min(max(self._esc_pwm_min, self.tmp_thrust - self.tmp_pid_pitch - self.tmp_pid_roll),
-                                          self._esc_pwm_max))
-            self._escs[2].pulse_width(min(max(self._esc_pwm_min, self.tmp_thrust + self.tmp_pid_pitch - self.tmp_pid_roll),
-                                          self._esc_pwm_max))
-            self._escs[3].pulse_width(min(max(self._esc_pwm_min, self.tmp_thrust - self.tmp_pid_pitch + self.tmp_pid_roll),
-                                          self._esc_pwm_max))
+
+            self.tmp_pulse_width = [min(max(self._esc_pwm_min, self.tmp_thrust + self.tmp_pid_pitch + self.tmp_pid_roll),
+                                    self._esc_pwm_max),
+                                    min(max(self._esc_pwm_min, self.tmp_thrust - self.tmp_pid_pitch - self.tmp_pid_roll),
+                                    self._esc_pwm_max),
+                                    min(max(self._esc_pwm_min, self.tmp_thrust + self.tmp_pid_pitch - self.tmp_pid_roll),
+                                    self._esc_pwm_max),
+                                    min(max(self._esc_pwm_min, self.tmp_thrust - self.tmp_pid_pitch + self.tmp_pid_roll),
+                                    self._esc_pwm_max)]
+
+            for k in range(0, self._num_motors):
+                self._escs[k].pulse_width(self.tmp_pulse_width[k])
+
         else:
             self.set_thrust_passthrough()
 

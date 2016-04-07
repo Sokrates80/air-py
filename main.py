@@ -96,7 +96,7 @@ rcCtrl = RCController()
 attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'])
 attitudeCtrl.set_rc_controller(rcCtrl)
 esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
-aplink = APLinkManager(attitudeCtrl)
+aplink = APLinkManager(attitudeCtrl, esc_ctrl)
 
 # Init Timer for status led (1 sec interval)
 tim1 = pyb.Timer(1)

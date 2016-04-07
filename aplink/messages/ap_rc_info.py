@@ -15,7 +15,7 @@ Revision History:
 
 
 class RcInfo:
-    def __init__(self, h_builder, attitude):
+    def __init__(self, h_builder, attitude, esc):
 
         self.attitude_controller = attitude
         self.header_builder = h_builder

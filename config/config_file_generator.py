@@ -20,7 +20,7 @@ class ConfigFileGenerator:
         return {
             "num_motors": 4,
             "attitude": {
-                'max_increment': 0.5,
+                'max_increment': 0.15,
                 'max_pitch': 10,
                 'max_roll': 10,
                 'Kp': 0.5,

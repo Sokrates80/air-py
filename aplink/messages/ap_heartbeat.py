@@ -15,7 +15,7 @@ Revision History:
 
 
 class Heartbeat:
-    def __init__(self, h_builder, attitude):
+    def __init__(self, h_builder, attitude, esc):
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 10
         self.PAYLOAD_LENGTH = 1
