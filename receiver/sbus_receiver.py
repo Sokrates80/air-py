@@ -68,6 +68,7 @@ class SBUSReceiver:
 
     def decode_frame(self):
 
+        # TODO: DoubleCheck if it has to be removed
         for i in range(0, self.SBUS_NUM_CHANNELS - 2):
             self.sbusChannels[i] = 0
 

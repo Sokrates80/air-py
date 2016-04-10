@@ -16,6 +16,8 @@ import util.airpy_logger as logger
 from aplink.messages.ap_enable_message import EnableMessage
 from aplink.messages.ap_disable_message import DisableMessage
 from aplink.messages.ap_enable_esc_calibration import EnableEscCalibration
+from aplink.messages.ap_save_pid_settings import SavePIDSettings
+from util.airpy_config_utils import save_config_file, load_config_file
 
 
 class DLReceiver:
@@ -81,9 +83,7 @@ class DLReceiver:
             if self.tmpByte[0] == self.EOF:
                 self.decode_payload(self.messageTypeId, self.payload)
                 self.valid_msg_count += 1
-                # debug
-                # if self.valid_msg_count == 1:
-                #    logger.debug("messageID:{}, QCI:{}, LastFragment:{}".format(self.messageId, self.QCI, self.lastFragment))
+
             else:
                 self.discarded_msg_count += 1
 
@@ -108,3 +108,15 @@ class DLReceiver:
             self.aplink_manager.set_message_status(EnableMessage.decode_payload(payload), 0)
         elif message_type_id == EnableEscCalibration.MESSAGE_TYPE_ID:
             EnableEscCalibration.enable_esc_calibration()
+        elif message_type_id == SavePIDSettings.MESSAGE_TYPE_ID:
+            pid_settings = SavePIDSettings.decode_payload(payload)
+            config = load_config_file("config.json")
+            config['attitude']['Kp'] = pid_settings[0]
+            config['attitude']['Kd'] = pid_settings[1]
+            config['attitude']['Ki'] = pid_settings[2]
+            config['attitude']['max_increment'] = pid_settings[3]
+            save_config_file("config.json", config)
+            logger.info("New PID Settings: Kp={},Kd={},Ki={},Max_Increment={}".format(SavePIDSettings.decode_payload(payload)[0],
+                                                                    SavePIDSettings.decode_payload(payload)[1],
+                                                                    SavePIDSettings.decode_payload(payload)[2],
+                                                                    SavePIDSettings.decode_payload(payload)[3]))
