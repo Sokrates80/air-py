@@ -19,7 +19,7 @@ import util.airpy_logger as logger
 
 class SBUSReceiver:
     def __init__(self):
-        self.sbus = UART(6, 100000)
+        self.sbus = UART(3, 100000)
         self.sbus.init(100000, bits=8, parity=0, stop=2, timeout_char=3, read_buf_len=250)
 
         # constants

@@ -27,7 +27,7 @@ from aplink.messages.ap_imu import ImuStatus
 
 
 class APLinkManager:
-    def __init__(self, att_ct):
+    def __init__(self, att_ct, esc_ct):
 
         # constants
         self.CONFIG_FILE_NAME = 'aplink_config.json'
@@ -51,6 +51,9 @@ class APLinkManager:
         # set attitude controller
         self.attitude = att_ct
 
+        # set esc controller
+        self.esc_ctrl = esc_ct
+
         # set rc controller
         self.rc_controller = att_ct.get_rc_controller()
 
@@ -72,7 +75,6 @@ class APLinkManager:
             'ImuStatus': ImuStatus
         }
         logger.info("aplink stack loaded successfully")
-        #logger.debug("min tti:{}".format(self.min_tti))
 
     def load_aplink_config(self):
         config = None
@@ -88,10 +90,10 @@ class APLinkManager:
     def get_config_infos(self, messages):
         for key, value in messages.items():
             # calculate normalized triggers for each message
-            self.msg_triggers.update({value['class']: {'message_type_id': value['message_type_id'],'enabled': value['enabled'], 'tti_ms': value['tti_ms']/self.min_tti, 'tti_count': 0}})
-        # debug
-        # for key, value in self.msg_triggers.items():
-        #    logger.info("Key:{} Value:{}".format(key, value))
+            self.msg_triggers.update({value['class']: {'message_type_id': value['message_type_id'],
+                                                       'enabled': value['enabled'],
+                                                       'tti_ms': value['tti_ms']/self.min_tti,
+                                                       'tti_count': 0}})
 
     def get_timer_freq(self):
         return 1000.0/self.min_tti
@@ -101,8 +103,7 @@ class APLinkManager:
             value['tti_count'] += 1
             if value['enabled'] == self.ENABLED:
                 if value['tti_count'] >= value['tti_ms']:
-                    #logger.debug("send_message - time to send: {}".format(key))
-                    self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
+                    self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude, self.esc_ctrl)
                     self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
                     value['tti_count'] = 0
 

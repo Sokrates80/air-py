@@ -15,19 +15,24 @@ import struct
 
 
 class ImuStatus:
-    def __init__(self, h_builder, attitude):
+    def __init__(self, h_builder, attitude, esc):
 
         self.attitude_controller = attitude
+        self.esc_ctrl = esc
         self.header_builder = h_builder
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 30
         self.floatList = self.attitude_controller.get_attitude_status()
-        self.PAYLOAD = struct.pack('%sf' % len(self.floatList), *self.floatList)
-        self.PAYLOAD_LENGTH = len(self.PAYLOAD)  # Short = 2 Bytes TODO: get size in bytes
+        self.shortlist = self.esc_ctrl.get_pulse_widths()
+        self.PAYLOAD_IMU = struct.pack('%sf' % len(self.floatList), *self.floatList)
+        self.PAYLOAD_MOTORS = struct.pack('%sH' % len(self.shortlist), *self.shortlist)
+        self.PAYLOAD = bytearray(self.PAYLOAD_IMU) + bytearray(self.PAYLOAD_MOTORS)
+        self.PAYLOAD_LENGTH = len(self.PAYLOAD)
         self.EOF = bytearray([self.PAYLOAD[0] & 255])
         self.FAIL_SAFE = (self.attitude_controller.get_rc_controller()).get_link_status()
         self.header = bytearray(h_builder.get_header(self))
         self.message = self.header + self.PAYLOAD + self.EOF
 
     def get_bytes(self):
+        #print("length:{},imu:{},motors:{},payload:{}".format(self.PAYLOAD_LENGTH, self.PAYLOAD_IMU,self.PAYLOAD_MOTORS,self.PAYLOAD))
         return self.message

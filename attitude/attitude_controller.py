@@ -14,66 +14,66 @@ Revision History:
 """
 
 # import sys
-import pyb
 from imu.mpu9150 import MPU9150
 from fusion.fusion import Fusion
+from attitude.pid_controller import PIDController
 import util.airpy_logger as logger
 
 
 class AttitudeController:
-    def __init__(self, config_m):
+    def __init__(self, config_m, imu_update_freq):
         self.rc_control = None
         self.config_manager = config_m
+        self._sampling_time = 1/imu_update_freq  # seconds
 
         # IMU
         self.imu = MPU9150('X')
         self.state = Fusion()
 
-        # Motors
-        self._num_motors = self.config_manager.get_param('num_motors')
-        self._motors = [pyb.Servo(index) for index in range(1, self._num_motors+1)]
+        # PID Controller
+        self._max_increment = self.config_manager.get_param_set('attitude', 'max_increment')
+        self._max_pitch = self.config_manager.get_param_set('attitude', 'max_pitch')
+        self._max_roll = self.config_manager.get_param_set('attitude', 'max_roll')
+        self._Kp = self.config_manager.get_param_set('attitude', 'Kp')
+        self._Kd = self.config_manager.get_param_set('attitude', 'Kd')
+        self._Ki = self.config_manager.get_param_set('attitude', 'Ki')
+        self.pid_controller_pitch = PIDController()
+        self.pid_controller_pitch.set_tunings(self._Kp, self._Kd, self._Ki, self._sampling_time, -1, 1)
+        self.pid_controller_roll = PIDController()
+        self.pid_controller_roll.set_tunings(self._Kp, self._Kd, self._Ki, self._sampling_time, -1, 1)
+        self.pid_pitch_value = 0
+        self.pid_roll_value = 0
+        self._esc_range = 0
 
-        # TODO: handling of missing calibration
-
-        self.throttle_min = self.config_manager.get_param_set('rcRadio', 'channels_default_min')[0]
-        self.throttle_max = self.config_manager.get_param_set('rcRadio', 'channels_default_max')[0]
-        self.throttle_center = self.config_manager.get_param_set('rcRadio', 'channels_default_center')[0]
-        logger.info("Throttle MIN/MAX/MID: {}/{}/{}".format(self.throttle_min, self.throttle_max, self.throttle_center))
-
-        # Motor Range Calibration
-        for i in range(0, self._num_motors):
-            self._motors[i].calibration(self.throttle_min, self.throttle_max, self.throttle_center)
+        # self.p_desired = 0  # hovering
+        # self.q_desired = 0  # hovering
+        # self.r_des = 0
+        # self.phi_desired = 0  # hovering
+        # self.theta_desired = 0  # hovering
 
         logger.info("AttitudeController Started")
 
     def set_rc_controller(self, rc_ctrl):
         self.rc_control = rc_ctrl
 
+    def set_esc_range(self, esc_range):
+        self._esc_range = esc_range*self._max_increment
+
     def get_rc_controller(self):
         return self.rc_control
 
     def update_state(self):
         self.state.update(self.imu.accel.xyz, self.imu.gyro.xyz, self.imu.mag.xyz)
-        self.set_thrust(self._motors[0], self.rc_control.get_channel(1))
-        # self.set_thrust(self.m1, self.rc_control.get_channel(1))
-        # sys.stdout.write(str("Pitch: ") + str(self.state.pitch) + str(" - Roll: ") + str(self.state.roll)+ str(" - Yaw: ") + str(self.state.heading)+str('    \r'))
-        # print("Pitch: ", self.state.pitch, " - Roll: ", self.state.roll, " - Yaw: ", self.state.heading)
+
+        # TODO: desired state = 0 is only for hoovering
+        self.pid_pitch_value = int(self.pid_controller_pitch.get_pid(self.state.pitch/self._max_pitch, 0)*self._esc_range)
+        self.pid_roll_value = int(self.pid_controller_roll.get_pid(self.state.roll/self._max_roll, 0)*self._esc_range)
+        # logger.debug("{};{}".format(self.state.pitch, self.pid_pitch_value))
 
     def get_attitude_status(self):
         return [self.state.pitch, self.state.roll, self.state.heading]
 
-    def set_thrust(self, motor, pulse_value):
-        motor.pulse_width(pulse_value)
-
-"""
-p_des = 0;
-q_des = 0;
-r_des = des_state.yawdot;
-
-k_p_phi*(phi_des-state.rot(1))+k_d_phi*(p_des-state.omega(1));
-k_p_theta*(theta_des-state.rot(2))+k_d_theta*(q_des-state.omega(2));
-k_p_psi*(des_state.yaw-state.rot(3))+k_d_psi*(r_des-state.omega(3));
-
-"""
+    def get_pid_increment(self):
+        return [self.pid_pitch_value, self.pid_roll_value]
 
 

@@ -15,6 +15,7 @@ Revision History:
 import util.airpy_logger as logger
 from aplink.messages.ap_enable_message import EnableMessage
 from aplink.messages.ap_disable_message import DisableMessage
+from aplink.messages.ap_enable_esc_calibration import EnableEscCalibration
 
 
 class DLReceiver:
@@ -105,3 +106,5 @@ class DLReceiver:
             self.aplink_manager.set_message_status(EnableMessage.decode_payload(payload), 1)
         elif message_type_id == DisableMessage.MESSAGE_TYPE_ID:
             self.aplink_manager.set_message_status(EnableMessage.decode_payload(payload), 0)
+        elif message_type_id == EnableEscCalibration.MESSAGE_TYPE_ID:
+            EnableEscCalibration.enable_esc_calibration()

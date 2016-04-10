@@ -12,6 +12,7 @@ Revision History:
 20-Jan-2016 Refactor to be compliant with PEP8
 
 """
+import pyb
 import util.airpy_logger as logger
 from receiver.sbus_receiver import SBUSReceiver
 
@@ -21,10 +22,43 @@ class RCController:
         # TODO select dynamically the receiver type
         self.rcCtrl = SBUSReceiver()
         self.report = ''
+        self.start_timer = 0
+        self.time_count = 0
+        self._IDLE = 0
+        self._ARMED = 1
+
         logger.info("RCController Started")
 
     def update_rx_data(self):
         self.rcCtrl.get_new_data()
+
+    def check_arming(self):
+        check = False
+        if self.get_channel(1) < 250 and self.get_channel(3) < 250 and self.get_channel(4) > 1600:
+            if self.start_timer > 0:
+                if pyb.elapsed_millis(self.start_timer) > 3000:  # 3 sec
+                    check = True
+                    self.start_timer = 0
+            else:
+                self.start_timer = pyb.millis()
+        else:
+            self.start_timer = 0
+
+        return check
+
+    def check_idle(self):
+        check = False
+        if self.get_channel(1) < 250:
+            if self.start_timer > 0:
+                if pyb.elapsed_millis(self.start_timer) > 5000:  # 5 sec
+                    check = True
+                    self.start_timer = 0
+            else:
+                self.start_timer = pyb.millis()
+        else:
+            self.start_timer = 0
+
+        return check
 
     def get_report(self):
         self.report = self.rcCtrl.get_rx_report()
