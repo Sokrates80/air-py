@@ -1,5 +1,5 @@
 import ujson
-#import util.airpy_logger as logger
+import util.airpy_logger as logger
 
 
 def load_config_file(file_name):
@@ -14,5 +14,4 @@ def save_config_file(config_file, config):
             config_json = ujson.dumps(config)
             f.write("%s" % config_json)
     except:
-        pass
-        #logger.error("Failed to save config file:{}".format(config_file))
+        logger.error("Failed to save config file:{}".format(config_file))
