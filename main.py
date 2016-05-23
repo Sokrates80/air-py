@@ -20,11 +20,11 @@ import gc
 import util.airpy_logger as logger
 
 from aplink.aplink_manager import APLinkManager
-from attitude.attitude_controller import AttitudeController
-from attitude.esc_controller import EscController
+from attitude.attitude_controller_4 import AttitudeController
+from attitude.esc_controller_3 import EscController
 from config.config_file_manager import ConfigFileManager
 from util.airpy_config_utils import load_config_file
-from receiver.rc_controller import RCController
+from receiver.rc_controller_2 import RCController
 
 
 # for better callback related error reporting
@@ -48,7 +48,6 @@ newApLinkMsg = False
 led = pyb.LED(4)
 led_armed = pyb.LED(1)
 logger.init(logger.AIRPY_INFO)
-tmpByte = bytearray(1)
 
 
 def send_byte(timApLink):
@@ -92,11 +91,12 @@ logger.info("AirPy v0.0.1 booting...")
 # load user and application configuration files
 cm = ConfigFileManager()
 app_config = load_config_file("app_config.json")
-rcCtrl = RCController()
-attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'])
-attitudeCtrl.set_rc_controller(rcCtrl)
-esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
-aplink = APLinkManager(attitudeCtrl, esc_ctrl)
+aplink_active = app_config['aplink_enabled']
+rcCtrl = RCController(cm)
+esc_ctrl = EscController(cm, app_config['PWM_refresh_rate'])
+attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'], rcCtrl, esc_ctrl)
+#attitudeCtrl.set_rc_controller(rcCtrl)
+#esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
 
 # Init Timer for status led (1 sec interval)
 tim1 = pyb.Timer(1)
@@ -108,22 +108,23 @@ timRx = pyb.Timer(2)
 timRx.init(freq=2778)
 timRx.callback(update_rx_data)
 
-# Timer for the aplink uplink mux. TODO: Read freq from Setting
-timApLink = pyb.Timer(4)
-timApLink.init(freq=aplink.get_timer_freq()*10)
-timApLink.callback(send_byte)
-
-# Timer for the aplink message factory
-timApLinkMsg = pyb.Timer(10)
-timApLinkMsg.init(freq=aplink.get_timer_freq())
-timApLinkMsg.callback(send_message)
-
 # Timer for the attitude state update
 timAttitude = pyb.Timer(12)
 timAttitude.init(freq=app_config['IMU_refresh_rate'])
 timAttitude.callback(update_attitude_state)
 
-# logger.system("Just a system test. Should create a system log")
+if aplink_active:
+    aplink = APLinkManager(attitudeCtrl)
+
+    # Timer for the aplink uplink mux. TODO: Read freq from Setting
+    timApLink = pyb.Timer(4)
+    timApLink.init(freq=aplink.get_timer_freq()*10)
+    timApLink.callback(send_byte)
+
+    # Timer for the aplink message factory
+    timApLinkMsg = pyb.Timer(10)
+    timApLinkMsg.init(freq=aplink.get_timer_freq())
+    timApLinkMsg.callback(send_message)
 
 while True:
     if update_rx:
@@ -133,6 +134,7 @@ while True:
     if updateLed:
         gc.collect()  # TODO: implement proper management of GC
         # micropython.mem_info()
+
         if state == IDLE:
             if rcCtrl.check_arming():
                 set_state(ARMED)
@@ -145,11 +147,7 @@ while True:
 
     if update_attitude:
         attitudeCtrl.update_state()
-        if state == IDLE:
-            esc_ctrl.set_zero_thrust()
-        elif state == ARMED:
-            #esc_ctrl.set_thrust_passthrough()
-            esc_ctrl.set_thrust()
+        attitudeCtrl.update_esc(state)
         update_attitude = False
 
     if sendByte:
@@ -160,4 +158,6 @@ while True:
     if newApLinkMsg:
         aplink.new_message()
         newApLinkMsg = False
+
+
 

@@ -26,9 +26,9 @@ class SavePIDSettings:
         :param payload: byte stream representing the message payload
         :return: an array of float [Kp,Kd,Ki,Max Increment]
         """
-        pid_settings = [0.0, 0.0, 0.0, 0.0]
+        pid_settings = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-        for i in range(0, 4):
+        for i in range(0, 8):
             pid_settings[i] = struct.unpack('>f', payload[i*4:i*4 + 4])[0]
 
         return pid_settings

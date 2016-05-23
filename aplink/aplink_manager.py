@@ -24,10 +24,11 @@ from util.airpy_byte_streamer import airpy_byte_streamer
 from aplink.messages.ap_heartbeat import Heartbeat
 from aplink.messages.ap_rc_info import RcInfo
 from aplink.messages.ap_imu import ImuStatus
+from aplink.messages.ap_read_pid_settings import ReadPID
 
 
 class APLinkManager:
-    def __init__(self, att_ct, esc_ct):
+    def __init__(self, att_ct):
 
         # constants
         self.CONFIG_FILE_NAME = 'aplink_config.json'
@@ -52,7 +53,7 @@ class APLinkManager:
         self.attitude = att_ct
 
         # set esc controller
-        self.esc_ctrl = esc_ct
+        #self.esc_ctrl = esc_ct
 
         # set rc controller
         self.rc_controller = att_ct.get_rc_controller()
@@ -72,7 +73,8 @@ class APLinkManager:
         self.message_factory = {
             'Heartbeat': Heartbeat,
             'RcInfo': RcInfo,
-            'ImuStatus': ImuStatus
+            'ImuStatus': ImuStatus,
+            'ReadPID': ReadPID
         }
         logger.info("aplink stack loaded successfully")
 
@@ -103,9 +105,17 @@ class APLinkManager:
             value['tti_count'] += 1
             if value['enabled'] == self.ENABLED:
                 if value['tti_count'] >= value['tti_ms']:
-                    self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude, self.esc_ctrl)
+                    self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
                     self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
                     value['tti_count'] = 0
+
+    def new_message_from_key(self, key):
+        '''
+        This function is used to send an asynchronous message
+        :param key: the messageID of the message
+        '''
+        self.tmp_msg = self.message_factory[key](self.header_builder, self.attitude)
+        self.ul_scheduler.schedule_message(self.tmp_msg.get_bytes())
 
     def set_message_status(self, msg_type_id, new_status):
         for key, value in self.msg_triggers.items():

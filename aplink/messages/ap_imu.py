@@ -15,15 +15,14 @@ import struct
 
 
 class ImuStatus:
-    def __init__(self, h_builder, attitude, esc):
+    def __init__(self, h_builder, attitude):
 
         self.attitude_controller = attitude
-        self.esc_ctrl = esc
         self.header_builder = h_builder
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 30
         self.floatList = self.attitude_controller.get_attitude_status()
-        self.shortlist = self.esc_ctrl.get_pulse_widths()
+        self.shortlist = self.attitude_controller.get_pulse_widths()
         self.PAYLOAD_IMU = struct.pack('%sf' % len(self.floatList), *self.floatList)
         self.PAYLOAD_MOTORS = struct.pack('%sH' % len(self.shortlist), *self.shortlist)
         self.PAYLOAD = bytearray(self.PAYLOAD_IMU) + bytearray(self.PAYLOAD_MOTORS)
@@ -34,5 +33,4 @@ class ImuStatus:
         self.message = self.header + self.PAYLOAD + self.EOF
 
     def get_bytes(self):
-        #print("length:{},imu:{},motors:{},payload:{}".format(self.PAYLOAD_LENGTH, self.PAYLOAD_IMU,self.PAYLOAD_MOTORS,self.PAYLOAD))
         return self.message

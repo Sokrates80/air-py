@@ -15,7 +15,7 @@ Revision History:
 
 
 class RcInfo:
-    def __init__(self, h_builder, attitude, esc):
+    def __init__(self, h_builder, attitude):
 
         self.attitude_controller = attitude
         self.header_builder = h_builder
@@ -29,8 +29,4 @@ class RcInfo:
         self.message = self.header + self.PAYLOAD + self.EOF
 
     def get_bytes(self):
-        # print("Len message RC:", len(self.message), " - Message: ", binascii.hexlify(self.message), " - PAY_LEN:", self.PAYLOAD_LENGTH, "- EOD_LEN: ", len(self.EOF))
         return self.message
-
-
-
