@@ -77,6 +77,7 @@ class InvenSenseMPU(object):
         self.buf3 = bytearray([0]*3)
         self.buf6 = bytearray([0]*6)
         self.timeout = 10                       # I2C timeout mS
+        self.gyro_calibration_status = False
 
         tim = pyb.millis()                      # Ensure PSU and device have settled
         if tim < 200:
@@ -110,6 +111,17 @@ class InvenSenseMPU(object):
         self.passthrough = True                 # Enable mag access from main I2C bus
         self.accel_range = 0                    # default to highest sensitivity
         self.gyro_range = 0                     # Likewise for gyro
+
+    def is_gyro_calibrating(self):
+        return self.gyro_calibration_status
+
+    # start calibration
+    def gyro_calibration(self, enable):
+        if enable:
+            self.gyro_calibration_status = False
+            self._gyro.calibrate(self.is_gyro_calibrating)
+        else:
+            self.gyro_calibration_status = True
 
     # read from device
     def _read(self, buf, memaddr, addr):        # addr = I2C device address, memaddr = memory location within the I2C device

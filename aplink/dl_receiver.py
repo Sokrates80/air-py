@@ -17,6 +17,9 @@ from aplink.messages.ap_enable_message import EnableMessage
 from aplink.messages.ap_disable_message import DisableMessage
 from aplink.messages.ap_enable_esc_calibration import EnableEscCalibration
 from aplink.messages.ap_save_pid_settings import SavePIDSettings
+from aplink.messages.ap_read_pid_settings import ReadPID
+from aplink.messages.ap_send_pid_settings import SendPIDSettings
+from aplink.messages.ap_gyro_calibration import GyroCalibration
 from util.airpy_config_utils import save_config_file, load_config_file
 
 
@@ -111,12 +114,30 @@ class DLReceiver:
         elif message_type_id == SavePIDSettings.MESSAGE_TYPE_ID:
             pid_settings = SavePIDSettings.decode_payload(payload)
             config = load_config_file("config.json")
-            config['attitude']['Kp'] = pid_settings[0]
-            config['attitude']['Kd'] = pid_settings[1]
-            config['attitude']['Ki'] = pid_settings[2]
+            config['attitude']['stab_Kp'] = pid_settings[0]
+            config['attitude']['stab_Kd'] = pid_settings[1]
+            config['attitude']['stab_Ki'] = pid_settings[2]
             config['attitude']['max_increment'] = pid_settings[3]
+            config['attitude']['gyro_Kp'] = pid_settings[4]
+            config['attitude']['gyro_Kd'] = pid_settings[5]
+            config['attitude']['gyro_Ki'] = pid_settings[6]
+            config['attitude']['max_gyro_increment'] = pid_settings[7]
             save_config_file("config.json", config)
-            logger.info("New PID Settings: Kp={},Kd={},Ki={},Max_Increment={}".format(SavePIDSettings.decode_payload(payload)[0],
-                                                                    SavePIDSettings.decode_payload(payload)[1],
-                                                                    SavePIDSettings.decode_payload(payload)[2],
-                                                                    SavePIDSettings.decode_payload(payload)[3]))
+
+            # Release the memory
+            config = None
+
+            #update current values
+            self.aplink_manager.attitude.set_PID_settings(pid_settings)
+        elif message_type_id == GyroCalibration.MESSAGE_TYPE_ID:
+
+            if GyroCalibration.decode_payload(payload) == 10:  # start Calibration
+                self.aplink_manager.attitude.gyro_calibration(False)
+                logger.info("Gyro Calibration Started")
+            elif GyroCalibration.decode_payload(payload) == 20:  # stop Calibration
+                self.aplink_manager.attitude.gyro_calibration(True)
+                logger.info("Gyro Calibration Completed")
+        elif message_type_id == SendPIDSettings.MESSAGE_TYPE_ID:
+            logger.info("Send PID Request Received")
+            self.aplink_manager.new_message_from_key(ReadPID.MESSAGE_KEY)
+            logger.info("PID Settings Sent")

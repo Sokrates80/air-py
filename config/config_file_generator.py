@@ -20,16 +20,21 @@ class ConfigFileGenerator:
         return {
             "num_motors": 4,
             "attitude": {
-                'max_increment': 0.25,
-                'max_pitch': 10,
-                'max_roll': 10,
-                'Kp': 1.5,
-                'Kd': 0.05,
-                'Ki': 0
+                'max_increment': 50,
+                'max_gyro_increment': 50,
+                'max_pitch': 45,
+                'max_roll': 45,
+                'stab_Kp': 1,
+                'stab_Kd': 0,
+                'stab_Ki': 0,
+                'gyro_Kp': 1,
+                'gyro_Kd': 0,
+                'gyro_Ki': 0
             },
             "rcRadio": {
                 'type': 'sbus',
                 'calibrationStatus': False,
+                "num_channels": 4,
                 'channels_default_center': [1024, 1024, 1024, 1024],
                 'channels_default_min': [0, 0, 0, 0],
                 'channels_default_max': [2047, 2047, 2047, 2047]
