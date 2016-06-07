@@ -24,12 +24,17 @@ class ConfigFileGenerator:
                 'max_gyro_increment': 50,
                 'max_pitch': 45,
                 'max_roll': 45,
+                'max_yaw': 180,
                 'stab_Kp': 1,
                 'stab_Kd': 0,
                 'stab_Ki': 0,
                 'gyro_Kp': 1,
                 'gyro_Kd': 0,
-                'gyro_Ki': 0
+                'gyro_Ki': 0,
+                'pitch_offset': -0.1,
+                'roll_offset': -0.75,
+                'pitch_rate_offset': 0.2,
+                'roll_rate_offset': 1.75
             },
             "rcRadio": {
                 'type': 'sbus',

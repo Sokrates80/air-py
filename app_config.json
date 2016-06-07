@@ -1,5 +1,5 @@
 {"serial_only": false, "fs_root": "",
-  "IMU_refresh_rate": 100,
+  "IMU_refresh_rate": 50,
   "PWM_refresh_rate": 200,
   "esc_calibration_mode": false,
   "aplink_enabled": true

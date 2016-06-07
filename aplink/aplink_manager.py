@@ -52,9 +52,6 @@ class APLinkManager:
         # set attitude controller
         self.attitude = att_ct
 
-        # set esc controller
-        #self.esc_ctrl = esc_ct
-
         # set rc controller
         self.rc_controller = att_ct.get_rc_controller()
 

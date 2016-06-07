@@ -65,10 +65,10 @@ class EscController:
 
     def set_thrust(self, widths):
 
-            self.pulse_widths = [min(max(self.esc_pwm_min, widths[0] - widths[1] - widths[2]), self.esc_pwm_max),
-                                 min(max(self.esc_pwm_min, widths[0] + widths[1] + widths[2]), self.esc_pwm_max),
-                                 min(max(self.esc_pwm_min, widths[0] - widths[1] + widths[2]), self.esc_pwm_max),
-                                 min(max(self.esc_pwm_min, widths[0] + widths[1] - widths[2]), self.esc_pwm_max)]
+            self.pulse_widths = [min(max(self.esc_pwm_min, widths[0] - widths[1] - widths[2] - widths[3]), self.esc_pwm_max),
+                                 min(max(self.esc_pwm_min, widths[0] + widths[1] + widths[2] - widths[3]), self.esc_pwm_max),
+                                 min(max(self.esc_pwm_min, widths[0] - widths[1] + widths[2] + widths[3]), self.esc_pwm_max),
+                                 min(max(self.esc_pwm_min, widths[0] + widths[1] - widths[2] + widths[3]), self.esc_pwm_max)]
 
             for k in range(0, self._num_motors):
                 self._escs[k].pulse_width(self.pulse_widths[k])

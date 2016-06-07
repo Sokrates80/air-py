@@ -42,13 +42,9 @@ class RCController:
 
         # TODO: include in settings file and in GUI calibration
         self.thrust_ch_index = 0
-        self.yaw_ch_index = 1
+        self.yaw_ch_index = 3
         self.pitch_ch_index = 2
-        self.roll_ch_index = 3
-
-        # DEBUG
-        # logger.debug("low_range: {}".format(self.channels_low_range))
-        # logger.debug("high_range: {}".format(self.channels_high_range))
+        self.roll_ch_index = 1
 
         logger.info("RCController Started")
 

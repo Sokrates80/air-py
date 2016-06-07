@@ -14,9 +14,7 @@ Revision History:
 
 """
 
-import util.airpy_logger as logger
 import array
-import gc
 
 
 class ULScheduler:
@@ -26,9 +24,6 @@ class ULScheduler:
         self.QCI_BYTE_INDEX = config['header']['qci']['index']
         self.QCI_MAX_VALUE = config['ul_scheduler']['QCI_max']
         self.QCI0_weight = config['ul_scheduler']['QCI0_weight']
-        # self.QCI1_weight = config['ul_scheduler']['QCI1_weight']
-        # self.QCI2_weight = config['ul_scheduler']['QCI2_weight']
-        # self.QCI3_weight = config['ul_scheduler']['QCI3_weight']
         self.QCI0_buff_len = 1500  # TODO dynamically allocate the buffer size based on config
         self.QCI0_msg_size_len = 20  # TODO dynamically allocate the buffer size based on config
         self.tmpQCI = 3
@@ -41,24 +36,9 @@ class ULScheduler:
         self.QCI0_buff = array.array('B', (0,) * self.QCI0_buff_len)
         self.QCI0_msg_len = array.array('I', (0,) * self.QCI0_msg_size_len)
         self.QCI0_index = 0
-        # self.QCI1 = []
-        # self.QCI2 = []
-        # self.QCI3 = []
-        # self.QCI_queue = [self.QCI0, self.QCI1, self.QCI2, self.QCI3]
-        # self.QCI_queues = {
-        #    'QCI0': {'buffer': self.QCI0_buff, 'msg_len': self.QCI0_msg_len, 'index': 0}
-        # }
 
         # Scheduler Parameters
         self.QCI0Count = 0
-        # self.QCI1Count = 0
-        # self.QCI2Count = 0
-        # self.QCI3Count = 0
-
-        #log_msg = "UL Scheduler loaded, QCI weights = " + str(self.QCI0_weight)
-        # log_msg += ',' + str(self.QCI1_weight)+',' + str(self.QCI2_weight) + ',' + str(self.QCI3_weight)
-
-        #logger.info(log_msg)
 
     def schedule_message(self, msg):
         # TODO handle msg discarding if buffer is full
@@ -80,9 +60,7 @@ class ULScheduler:
 
         if self.QCI0Count > 0:
             self.tmp_msg = self.QCI0_buff[0:self.QCI0_msg_len[0]]
-            #logger.debug("Range:{} - msg in queue:{} - index:{}".format(self.QCI0_index-self.QCI0_msg_len[0],
-            #                                                            self.QCI0Count,
-            #                                                            self.QCI0_index))
+
             for k in range(0, self.QCI0_index-self.QCI0_msg_len[0]):
                 self.QCI0_buff[k] = self.QCI0_buff[self.QCI0_msg_len[0] + k]
             # shift array on the left by 1

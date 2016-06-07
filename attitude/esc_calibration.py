@@ -13,11 +13,11 @@ Revision History:
 """
 
 import pyb
-from attitude.attitude_controller_4 import AttitudeController
-from attitude.esc_controller_3 import EscController
+from attitude.attitude_controller import AttitudeController
+from attitude.esc_controller import EscController
 from config.config_file_manager import ConfigFileManager
 from util.airpy_config_utils import load_config_file
-from receiver.rc_controller_2 import RCController
+from receiver.rc_controller import RCController
 
 pyb.LED(1).on()  # red led indicting motor armed
 update_rx = False

@@ -1,4 +1,4 @@
-from pyb import millis
+import time
 from math import pi, isnan
 
 
@@ -18,8 +18,9 @@ class PID:
 
         error = desired - current
 
-        tnow = millis()
-        dt = tnow - self._last_t
+        tnow = int(round(time.time() * 1000))
+
+        dt = tnow-self._last_t
         output = 0
         if self._last_t == 0 or dt > 1000:
             dt = 0
