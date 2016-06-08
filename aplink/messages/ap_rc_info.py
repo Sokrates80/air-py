@@ -16,6 +16,13 @@ Revision History:
 
 class RcInfo:
     def __init__(self, h_builder, attitude):
+        """
+        Used to carry the decoded RC channels decoded value. The streaming of this message is enabled during the
+        Tx calibration in order to set the min/max/centre value for each channel.
+        It will carry 18 short values representing 18 SBUS channels (2 of that being digital)
+        :param h_builder: HeaderBuilder object
+        :param attitude: AttitudeController object
+        """
 
         self.attitude_controller = attitude
         self.header_builder = h_builder

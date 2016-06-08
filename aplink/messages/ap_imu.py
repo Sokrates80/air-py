@@ -13,9 +13,18 @@ Revision History:
 """
 import struct
 
+# TODO split this message into two: IMU and MOTORS
+
 
 class ImuStatus:
     def __init__(self, h_builder, attitude):
+        """
+        This message is used to carry IMU and MOTOR related information:
+        IMU: 6 float in total (3 for Pitch,Roll,Yaw angles and 3 for the related angular velocities)
+        MOTORS: 4 float in total (1 for each motor PWM value)
+        :param h_builder: HeaderBuilder object
+        :param attitude: AttitudeController object
+        """
 
         self.attitude_controller = attitude
         self.header_builder = h_builder

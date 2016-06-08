@@ -9,7 +9,7 @@ Created on Sun Apr 10 23:32:24 2016
 """
 
 
-class PIDController:
+class PID:
 
     def __init__(self, p=0, i=0, d=0, imax=0):
         # settings

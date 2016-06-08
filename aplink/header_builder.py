@@ -17,10 +17,12 @@ import array
 
 class HeaderBuilder:
 
-    def __init__(self, config):
-
+    def __init__(self):
+        """
+        Used for dynamic Header generation
+        """
         # constants
-        self.MESSAGE_ID_NUM_BIT = config['header']['message_id']['length_bit']
+        # self.MESSAGE_ID_NUM_BIT = config['header']['message_id']['length_bit']
         self.FRAME_MARKER = b'\FF'
         self.HEADER_LEN = 12  # bytes
         self.SECOND_BYTE_BITMASK = 65280

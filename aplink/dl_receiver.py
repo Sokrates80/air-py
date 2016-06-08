@@ -26,6 +26,12 @@ from util.airpy_config_utils import save_config_file, load_config_file
 class DLReceiver:
 
     def __init__(self, apl_manager, streamer, h_builder):
+        """
+        This class is used to handle incoming APLINK messages received through the serial interface
+        :param apl_manager: AplinkManager object
+        :param streamer: airpy_byte_streamer object used to write on the serial interface
+        :param h_builder: HeaderBuilder object used to generate the APLINK protocol Header
+        """
         self.byte_streamer = streamer
         self.header_builder = h_builder
         self.aplink_manager = apl_manager
@@ -49,7 +55,7 @@ class DLReceiver:
         self.tmpByte = self.byte_streamer.read_byte()
 
         if self.tmpByte is not None:
-            # logger.info("new incoming byte: {}, byteIndex: {}".format(self.tmpByte[0], self.byteIndex))
+
             if self.startByteFound:
                 if self.byteIndex < self.header_builder.HEADER_LEN:
                     self.parse_header()
@@ -127,7 +133,7 @@ class DLReceiver:
             # Release the memory
             config = None
 
-            #update current values
+            # update current values
             self.aplink_manager.attitude.set_PID_settings(pid_settings)
         elif message_type_id == GyroCalibration.MESSAGE_TYPE_ID:
 

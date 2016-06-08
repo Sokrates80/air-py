@@ -11,11 +11,15 @@ Revision History:
 22-Jan-2016 Initial Release
 
 """
-# import binascii
 
 
 class Heartbeat:
     def __init__(self, h_builder, attitude):
+        """
+        Heartbeat message; it is sent through the serial interface to indicate the aplink is up and running
+        :param h_builder: HeaderBuilder object
+        :param attitude: AttitudeController object
+        """
         self.QCI = 0
         self.MESSAGE_TYPE_ID = 10
         self.PAYLOAD_LENGTH = 1
@@ -28,7 +32,6 @@ class Heartbeat:
         self.message = self.header + self.PAYLOAD + self.EOF
 
     def get_bytes(self):
-        # print("Len message HBeat:", len(self.message), " - Message: ", binascii.hexlify(self.message), " - PAY_LEN:", self.PAYLOAD_LENGTH, "- EOD_LEN: ", len(self.EOF))
         return self.message
 
 

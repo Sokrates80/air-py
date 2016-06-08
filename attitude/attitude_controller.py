@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 AirPy - MicroPython based autopilot v. 0.0.1
 
@@ -9,7 +8,6 @@ Created on Sun Dec 13 23:32:24 2015
 Revision History:
 
 13-Dec-2015 Initial Release
-20-Jan-2016 Refactor to be compliant with PEP8
 
 """
 
@@ -120,9 +118,6 @@ class AttitudeController:
 
     def get_pulse_widths(self):
         return self.esc_controller.pulse_widths
-
-    def wrap_180(self, x):
-        return x+360 if x < -180 else (x-360 if x > 180 else x)
 
     def update_esc(self, state):
 

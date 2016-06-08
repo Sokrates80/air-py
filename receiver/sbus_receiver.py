@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 AirPy - MicroPython based autopilot v. 0.0.1
 
@@ -16,6 +15,7 @@ Revision History:
 from pyb import UART
 import array
 import util.airpy_logger as logger
+
 
 class SBUSReceiver:
     def __init__(self):

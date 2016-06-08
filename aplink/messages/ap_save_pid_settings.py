@@ -8,8 +8,6 @@ Created on Sun Apr 10 17:11:24 2016
 
 """
 import struct
-import binascii
-import util.airpy_logger as logger
 
 
 class SavePIDSettings:
@@ -24,7 +22,7 @@ class SavePIDSettings:
         """
         Decode message payload
         :param payload: byte stream representing the message payload
-        :return: an array of float [Kp,Kd,Ki,Max Increment]
+        :return: an array of 8 float [stab_Kp,stab_Kd,stab_Ki,Max Increment,gyro_Kp,gyro_Kd,gyro_Ki,gyro_Max Increment]
         """
         pid_settings = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 

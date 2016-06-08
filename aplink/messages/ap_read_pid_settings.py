@@ -21,7 +21,12 @@ class ReadPID:
     MESSAGE_KEY = 'ReadPID'
 
     def __init__(self, h_builder, attitude):
-
+        """
+        Used to carry the current PID settings as an array of 8 float:
+        [stab_Kp,stab_Kd,stab_Ki,Max Increment,gyro_Kp,gyro_Kd,gyro_Ki,gyro_Max Increment]
+        :param h_builder: HeaderBuilder object
+        :param attitude: AttitudeController object
+        """
         self.attitude_controller = attitude
         self.header_builder = h_builder
         self.QCI = 0
@@ -35,5 +40,4 @@ class ReadPID:
         self.message = self.header + self.PAYLOAD + self.EOF
 
     def get_bytes(self):
-        #logger.info(self.floatList)
         return self.message

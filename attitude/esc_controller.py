@@ -35,8 +35,6 @@ class EscController:
         self.pulse_widths = array.array('H', [0, 0, 0, 0])  # TODO: initialize based on # of motors
 
         # TODO: GENERALIZE
-        # self.tmp_pulse_width = array.array('H', (0,)*self._num_motors)
-
         # set PWM to 400Hz TODO: set freq according to settings
         self._timers = [Timer(config_m.get_param_set('esc', 'quadcopter')['timers'][index],
                               prescaler=83, period=2499) for index in range(0, self._num_motors)]
@@ -53,7 +51,6 @@ class EscController:
 
     def set_thrust_passthrough(self, pwm):
 
-        # self.tmp_pulse_width = [pwm for i in range(0, self._num_motors)]  # used for aplink report
         for j in range(0, self._num_motors):
             self._escs[j].pulse_width(pwm)
 

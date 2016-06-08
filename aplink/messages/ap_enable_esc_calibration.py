@@ -19,6 +19,11 @@ class EnableEscCalibration:
 
     @staticmethod
     def enable_esc_calibration():
+        '''
+        Used to enable esc calibration by changing a flag in the app_config.json. By rebooting the board the change
+        will take effect. Rebooting the board again the standard mode will be restored.
+        :return:
+        '''
         config = load_config_file("app_config.json")
         config['esc_calibration_mode'] = True
         save_config_file("app_config.json", config)

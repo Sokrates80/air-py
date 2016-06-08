@@ -18,4 +18,9 @@ class DisableMessage:
 
     @staticmethod
     def decode_payload(payload):
+        """
+        Used to disable the generation of a specific message type
+        :param payload: the payload (bytearray) of the received packed
+        :return: the decoded content of the packet; in this case the MESSAGE_TYPE_ID of the message to disable
+        """
         return payload[0]

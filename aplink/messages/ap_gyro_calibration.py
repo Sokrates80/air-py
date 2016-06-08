@@ -21,4 +21,8 @@ class GyroCalibration:
 
     @staticmethod
     def decode_payload(payload):
+        """
+        Async message used to start and stop the gyro calibration.
+        *****Currently not working*****
+        """
         return payload[0]

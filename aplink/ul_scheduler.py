@@ -19,7 +19,11 @@ import array
 
 class ULScheduler:
     def __init__(self, config, streamer):
-
+        """
+        This class is used to handle outgoing APLINK messages sent through the serial interface
+        :param config: ConfigManager object
+        :param streamer: airpy_byte_streamer object used to read the serial interface
+        """
         # Scheduler Settings
         self.QCI_BYTE_INDEX = config['header']['qci']['index']
         self.QCI_MAX_VALUE = config['ul_scheduler']['QCI_max']

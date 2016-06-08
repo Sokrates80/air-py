@@ -14,6 +14,11 @@ class SendPIDSettings:
     MESSAGE_TYPE_ID = 90
 
     def __init__(self):
+        """
+        Used to trigger the generation of an ap_read_pid_settings message.
+        :param h_builder: HeaderBuilder object
+        :param attitude: AttitudeController object
+        """
         pass
 
     @staticmethod
