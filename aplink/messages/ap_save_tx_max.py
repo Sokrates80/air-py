@@ -20,27 +20,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+import struct
 
-class Heartbeat:
-    def __init__(self, h_builder, attitude):
+
+class SaveTxMax:
+
+    MESSAGE_TYPE_ID = 110
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def decode_payload(payload):
         """
-        Heartbeat message; it is sent through the serial interface to indicate the aplink is up and running
-        :param h_builder: HeaderBuilder object
-        :param attitude: AttitudeController object
+        Decode message payload
+        :param payload: byte stream representing the message payload
+        :return: an array of N integer representing the PWM value the N active channels
+         [<ch1 pwm value>,<ch2 pwm value>,<ch3 pwm value>,....,<chN pwm value>]
         """
-        self.QCI = 0
-        self.MESSAGE_TYPE_ID = 10
-        self.PAYLOAD_LENGTH = 1
-        self.PAYLOAD = bytearray([255])
-        self.EOF = bytearray([self.PAYLOAD[0] & 255])
-        self.attitude_controller = attitude
-        self.header_builder = h_builder
-        self.FAIL_SAFE = (self.attitude_controller.get_rc_controller()).get_link_status()
-        self.header = bytearray(h_builder.get_header(self))
-        self.message = self.header + self.PAYLOAD + self.EOF
 
-    def get_bytes(self):
-        return self.message
+        # TODO: Generlize for N channels
+        pid_settings = [0, 0, 0, 0]
 
+        for i in range(0, 4):
+            pid_settings[i] = struct.unpack('>i', payload[i*4:i*4 + 4])[0]
 
-
+        return pid_settings
