@@ -1,4 +1,4 @@
-# air-py
+# airPy
 
 The aim of the airPy project is to create a drone flight controller using the pyboard
 
