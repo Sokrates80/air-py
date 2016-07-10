@@ -1,6 +1,6 @@
 from pyb import RTC
 import os
-from util.airpy_config_utils import load_config_file
+from utils.airpy_config_utils import load_config_file
 
 AIRPY_SYSTEM = 4
 AIRPY_ERROR = 3

@@ -1,34 +1,39 @@
-# -*- coding: utf-8 -*-
 """
-AirPy - MicroPython based autopilot v. 0.0.1
+airPy is a flight controller based on pyboard and written in micropython.
 
-Created on Sun Dec 13 23:32:24 2015
-
-@author: Fabrizio Scimia
-
-Revision History:
-
-13-Dec-2015 Initial Release
-20-Jan-2016 Refactor to be compliant with PEP8
- 
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
-import micropython
+# import micropython
 import pyb
 import gc
-
-import util.airpy_logger as logger
-
+import utils.airpy_logger as logger
 from aplink.aplink_manager import APLinkManager
-from attitude.attitude_controller_4 import AttitudeController
-from attitude.esc_controller_3 import EscController
+from attitude.attitude_controller import AttitudeController
+from attitude.esc_controller import EscController
 from config.config_file_manager import ConfigFileManager
-from util.airpy_config_utils import load_config_file
-from receiver.rc_controller_2 import RCController
+from utils.airpy_config_utils import load_config_file
+from receiver.rc_controller import RCController
 
 
 # for better callback related error reporting
-micropython.alloc_emergency_exception_buf(100)
+# micropython.alloc_emergency_exception_buf(100)
 
 # State Definition
 IDLE = 0
@@ -89,14 +94,17 @@ def set_state(new_state):
 logger.info("AirPy v0.0.1 booting...")
 
 # load user and application configuration files
+
 cm = ConfigFileManager()
 app_config = load_config_file("app_config.json")
 aplink_active = app_config['aplink_enabled']
 rcCtrl = RCController(cm)
 esc_ctrl = EscController(cm, app_config['PWM_refresh_rate'])
 attitudeCtrl = AttitudeController(cm, app_config['IMU_refresh_rate'], rcCtrl, esc_ctrl)
-#attitudeCtrl.set_rc_controller(rcCtrl)
-#esc_ctrl = EscController(cm, attitudeCtrl, app_config['PWM_refresh_rate'])
+
+# Free some memory
+cm = None
+gc.collect()
 
 # Init Timer for status led (1 sec interval)
 tim1 = pyb.Timer(1)
@@ -113,6 +121,10 @@ timAttitude = pyb.Timer(12)
 timAttitude.init(freq=app_config['IMU_refresh_rate'])
 timAttitude.callback(update_attitude_state)
 
+# Free some memory
+app_config = None
+gc.collect()
+
 if aplink_active:
     aplink = APLinkManager(attitudeCtrl)
 
@@ -127,6 +139,7 @@ if aplink_active:
     timApLinkMsg.callback(send_message)
 
 while True:
+
     if update_rx:
         rcCtrl.update_rx_data()
         update_rx = False
@@ -158,6 +171,5 @@ while True:
     if newApLinkMsg:
         aplink.new_message()
         newApLinkMsg = False
-
 
 

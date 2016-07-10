@@ -20,10 +20,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
+import struct
 
-class DisableMessage:
 
-    MESSAGE_TYPE_ID = 50
+class SaveTxCalibration:
+
+    MESSAGE_TYPE_ID = 110
 
     def __init__(self):
         pass
@@ -31,8 +33,25 @@ class DisableMessage:
     @staticmethod
     def decode_payload(payload):
         """
-        Used to disable the generation of a specific message type
-        :param payload: the payload (bytearray) of the received packed
-        :return: the decoded content of the packet; in this case the MESSAGE_TYPE_ID of the message to disable
+        Decode message payload
+        :param payload: byte stream representing the message payload
+        :return: a list of 3 list of integers representing the PWM threshold values for each of the N active channels
+         [<min threshold values>,<max threshold values>, <center threshold values>]
         """
-        return payload[0]
+
+        # 4 byte per integer * 3 set of thesholds
+        byte_per_thd_set = int(len(payload)/3)
+        min_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+        max_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+        center_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+
+        for i in range(0, int(byte_per_thd_set/4)):
+            min_thd_vals[i] = struct.unpack('>i', payload[i*4:i*4 + 4])[0]
+
+        for i in range(0, int(byte_per_thd_set/4)):
+            max_thd_vals[i] = struct.unpack('>i', payload[byte_per_thd_set + i*4:i*4 + 4 + byte_per_thd_set])[0]
+
+        for i in range(0, int(byte_per_thd_set/4)):
+            center_thd_vals[i] = struct.unpack('>i', payload[2*byte_per_thd_set + i*4:i*4 + 2*byte_per_thd_set + 4])[0]
+
+        return [min_thd_vals, max_thd_vals, center_thd_vals]

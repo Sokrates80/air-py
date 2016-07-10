@@ -1,23 +1,31 @@
-# -*- coding: utf-8 -*-
 """
-AirPy - MicroPython based autopilot v. 0.0.1
+airPy is a flight controller based on pyboard and written in micropython.
 
-Created on Thu Apr 01 23:32:24 2016
-
-@author: Fabrizio Scimia
-
-Revision History:
-
-01-Apr-2016 Initial Release
-
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
 import pyb
-from attitude.attitude_controller_4 import AttitudeController
-from attitude.esc_controller_3 import EscController
+from attitude.attitude_controller import AttitudeController
+from attitude.esc_controller import EscController
 from config.config_file_manager import ConfigFileManager
-from util.airpy_config_utils import load_config_file
-from receiver.rc_controller_2 import RCController
+from utils.airpy_config_utils import load_config_file
+from receiver.rc_controller import RCController
 
 pyb.LED(1).on()  # red led indicting motor armed
 update_rx = False

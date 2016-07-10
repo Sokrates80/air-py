@@ -1,15 +1,23 @@
 """
-AirPy - MicroPython based autopilot v. 0.0.1
+airPy is a flight controller based on pyboard and written in micropython.
 
-Created on Sun Jan 19 23:32:24 2016
-
-@author: Fabrizio Scimia
-
-Revision History:
-
-13-Dec-2015 Initial Release
-20-Jan-2016 Refactor to be compliant with PEP8
-
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
 
@@ -24,12 +32,17 @@ class ConfigFileGenerator:
                 'max_gyro_increment': 50,
                 'max_pitch': 45,
                 'max_roll': 45,
+                'max_yaw': 180,
                 'stab_Kp': 1,
                 'stab_Kd': 0,
                 'stab_Ki': 0,
                 'gyro_Kp': 1,
                 'gyro_Kd': 0,
-                'gyro_Ki': 0
+                'gyro_Ki': 0,
+                'pitch_offset': -0.1,
+                'roll_offset': -0.75,
+                'pitch_rate_offset': 0.2,
+                'roll_rate_offset': 1.75
             },
             "rcRadio": {
                 'type': 'sbus',

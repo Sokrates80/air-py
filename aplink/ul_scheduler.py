@@ -1,34 +1,39 @@
 """
+airPy is a flight controller based on pyboard and written in micropython.
 
-AirPy - MicroPython based autopilot v. 0.0.1
-
-Created on Sun Dec 13 23:32:24 2015
-
-@author: Fabrizio Scimia
-
-This class is used to schedule outgoing protocol messages according to their priority
-
-Revision History:
-
-22-Jan-2016 Initial Release
-
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
-import util.airpy_logger as logger
 import array
-import gc
 
 
 class ULScheduler:
     def __init__(self, config, streamer):
-
+        """
+        This class is used to handle outgoing APLINK messages sent through the serial interface
+        :param config: ConfigManager object
+        :param streamer: airpy_byte_streamer object used to read the serial interface
+        """
         # Scheduler Settings
         self.QCI_BYTE_INDEX = config['header']['qci']['index']
         self.QCI_MAX_VALUE = config['ul_scheduler']['QCI_max']
         self.QCI0_weight = config['ul_scheduler']['QCI0_weight']
-        # self.QCI1_weight = config['ul_scheduler']['QCI1_weight']
-        # self.QCI2_weight = config['ul_scheduler']['QCI2_weight']
-        # self.QCI3_weight = config['ul_scheduler']['QCI3_weight']
         self.QCI0_buff_len = 1500  # TODO dynamically allocate the buffer size based on config
         self.QCI0_msg_size_len = 20  # TODO dynamically allocate the buffer size based on config
         self.tmpQCI = 3
@@ -41,24 +46,9 @@ class ULScheduler:
         self.QCI0_buff = array.array('B', (0,) * self.QCI0_buff_len)
         self.QCI0_msg_len = array.array('I', (0,) * self.QCI0_msg_size_len)
         self.QCI0_index = 0
-        # self.QCI1 = []
-        # self.QCI2 = []
-        # self.QCI3 = []
-        # self.QCI_queue = [self.QCI0, self.QCI1, self.QCI2, self.QCI3]
-        # self.QCI_queues = {
-        #    'QCI0': {'buffer': self.QCI0_buff, 'msg_len': self.QCI0_msg_len, 'index': 0}
-        # }
 
         # Scheduler Parameters
         self.QCI0Count = 0
-        # self.QCI1Count = 0
-        # self.QCI2Count = 0
-        # self.QCI3Count = 0
-
-        #log_msg = "UL Scheduler loaded, QCI weights = " + str(self.QCI0_weight)
-        # log_msg += ',' + str(self.QCI1_weight)+',' + str(self.QCI2_weight) + ',' + str(self.QCI3_weight)
-
-        #logger.info(log_msg)
 
     def schedule_message(self, msg):
         # TODO handle msg discarding if buffer is full
@@ -80,9 +70,7 @@ class ULScheduler:
 
         if self.QCI0Count > 0:
             self.tmp_msg = self.QCI0_buff[0:self.QCI0_msg_len[0]]
-            #logger.debug("Range:{} - msg in queue:{} - index:{}".format(self.QCI0_index-self.QCI0_msg_len[0],
-            #                                                            self.QCI0Count,
-            #                                                            self.QCI0_index))
+
             for k in range(0, self.QCI0_index-self.QCI0_msg_len[0]):
                 self.QCI0_buff[k] = self.QCI0_buff[self.QCI0_msg_len[0] + k]
             # shift array on the left by 1

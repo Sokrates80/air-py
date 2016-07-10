@@ -2,7 +2,7 @@
 airPy is a flight controller based on pyboard and written in micropython.
 
 The MIT License (MIT)
-Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Copyright (c) 2016 Cristian Maugeri, filla.one@gmail.com
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -20,27 +20,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-
-class Heartbeat:
-    def __init__(self, h_builder, attitude):
-        """
-        Heartbeat message; it is sent through the serial interface to indicate the aplink is up and running
-        :param h_builder: HeaderBuilder object
-        :param attitude: AttitudeController object
-        """
-        self.QCI = 0
-        self.MESSAGE_TYPE_ID = 10
-        self.PAYLOAD_LENGTH = 1
-        self.PAYLOAD = bytearray([255])
-        self.EOF = bytearray([self.PAYLOAD[0] & 255])
-        self.attitude_controller = attitude
-        self.header_builder = h_builder
-        self.FAIL_SAFE = (self.attitude_controller.get_rc_controller()).get_link_status()
-        self.header = bytearray(h_builder.get_header(self))
-        self.message = self.header + self.PAYLOAD + self.EOF
-
-    def get_bytes(self):
-        return self.message
+import ujson
+# import utils.airpy_logger as logger
 
 
+def load_config_file(file_name):
+    with open(file_name, 'r') as f:
+        config_file = ujson.loads(f.readall())
+    return config_file
+
+
+def save_config_file(config_file, config):
+    with open(config_file, 'w') as f:
+        config_json = ujson.dumps(config)
+        f.write("%s" % config_json)
 

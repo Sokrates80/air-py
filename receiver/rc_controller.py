@@ -1,25 +1,39 @@
-# -*- coding: utf-8 -*-
-"""
-AirPy - MicroPython based autopilot v. 0.0.1
-
-Created on Sun Dec 13 23:32:24 2015
-
-@author: Fabrizio Scimia
-
-Revision History:
-
-13-Dec-2015 Initial Release
-20-Jan-2016 Refactor to be compliant with PEP8
 
 """
+airPy is a flight controller based on pyboard and written in micropython.
+
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 import pyb
 import array
-import util.airpy_logger as logger
+# import util.airpy_logger as logger
 from receiver.sbus_receiver import SBUSReceiver
 
 
 class RCController:
     def __init__(self, config_m):
+        """
+        This class is used as interface to handle different type of RC receivers. At the moment Frsky SBUS is the only
+         one tested and supported (X8R, X6R, X4R)
+        :param config_m: and object ConfigFileManager used to retrieve RC configuration parameters
+        """
         # TODO select dynamically the receiver type
         self.rcCtrl = SBUSReceiver()
         self.report = ''
@@ -33,24 +47,23 @@ class RCController:
 
         # load rc specific parameters (they should come from airPyGS RC Calibration) TODO: check if calibrated
         self.num_channels = config_m.get_param_set('rcRadio', 'num_channels')
-        self.channels_min = config_m.get_param_set('rcRadio', 'channels_default_min')
-        self.channels_max = config_m.get_param_set('rcRadio', 'channels_default_max')
-        self.channels_center = config_m.get_param_set('rcRadio', 'channels_default_center')
+        self.channels_min = config_m.get_param_set('rcRadio', 'channels_min')
+        self.channels_max = config_m.get_param_set('rcRadio', 'channels_max')
+        self.channels_center = config_m.get_param_set('rcRadio', 'channels_center')
         self.channels_low_range = list(map(lambda m, n: m-n, self.channels_center, self.channels_min))
         self.channels_high_range = list(map(lambda m, n: m-n, self.channels_max, self.channels_center))
         self.channels_full_range = list(map(lambda m, n: m-n, self.channels_max, self.channels_min))
 
         # TODO: include in settings file and in GUI calibration
         self.thrust_ch_index = 0
-        self.yaw_ch_index = 1
+        self.yaw_ch_index = 3
         self.pitch_ch_index = 2
-        self.roll_ch_index = 3
+        self.roll_ch_index = 1
 
-        # DEBUG
-        # logger.debug("low_range: {}".format(self.channels_low_range))
-        # logger.debug("high_range: {}".format(self.channels_high_range))
+        # release memory
+        config_m = None
 
-        logger.info("RCController Started")
+     #   logger.info("RCController Started")
 
     def update_rx_data(self):
         self.rcCtrl.get_new_data()
@@ -65,6 +78,9 @@ class RCController:
         return self.mapped_value
 
     def update_channels_ratio(self):
+        """
+        Used to retrieve the PWM channels values from the RC receiver and translate them into percentage values.
+        """
         self.channels = self.rcCtrl.get_rx_channels()
         self.channels_ratio[0] = self.channels[self.thrust_ch_index]/self.channels_full_range[self.thrust_ch_index]
         self.channels_ratio[1] = self.map_range(self.channels[self.yaw_ch_index], self.yaw_ch_index)
@@ -86,6 +102,10 @@ class RCController:
         return check
 
     def get_channels_ratio(self):
+        """
+        Used to retrieve all channels ratio value at once.
+        :return: an array containing the ratio value for all the 4 channels
+        """
         self.update_channels_ratio()
         return self.channels_ratio
 

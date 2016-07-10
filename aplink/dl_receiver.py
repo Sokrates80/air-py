@@ -1,18 +1,30 @@
 """
+airPy is a flight controller based on pyboard and written in micropython.
 
-AirPy - MicroPython based autopilot v. 0.0.1
-
-Created on Sat Mar 12 23:32:24 2015
-
-@author: Fabrizio Scimia
-
-Revision History:
-
-12-Mar-2016 Initial Release
-
+The MIT License (MIT)
+Copyright (c) 2016 Fabrizio Scimia, fabrizio.scimia@gmail.com
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 """
 
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
+# import gc
+from utils.airpy_config_utils import save_config_file, load_config_file
+
+# messages import
 from aplink.messages.ap_enable_message import EnableMessage
 from aplink.messages.ap_disable_message import DisableMessage
 from aplink.messages.ap_enable_esc_calibration import EnableEscCalibration
@@ -20,12 +32,18 @@ from aplink.messages.ap_save_pid_settings import SavePIDSettings
 from aplink.messages.ap_read_pid_settings import ReadPID
 from aplink.messages.ap_send_pid_settings import SendPIDSettings
 from aplink.messages.ap_gyro_calibration import GyroCalibration
-from util.airpy_config_utils import save_config_file, load_config_file
+from aplink.messages.ap_save_tx_calibration import SaveTxCalibration
 
 
 class DLReceiver:
 
     def __init__(self, apl_manager, streamer, h_builder):
+        """
+        This class is used to handle incoming APLINK messages received through the serial interface
+        :param apl_manager: AplinkManager object
+        :param streamer: airpy_byte_streamer object used to write on the serial interface
+        :param h_builder: HeaderBuilder object used to generate the APLINK protocol Header
+        """
         self.byte_streamer = streamer
         self.header_builder = h_builder
         self.aplink_manager = apl_manager
@@ -49,7 +67,7 @@ class DLReceiver:
         self.tmpByte = self.byte_streamer.read_byte()
 
         if self.tmpByte is not None:
-            # logger.info("new incoming byte: {}, byteIndex: {}".format(self.tmpByte[0], self.byteIndex))
+
             if self.startByteFound:
                 if self.byteIndex < self.header_builder.HEADER_LEN:
                     self.parse_header()
@@ -127,7 +145,7 @@ class DLReceiver:
             # Release the memory
             config = None
 
-            #update current values
+            # update current values
             self.aplink_manager.attitude.set_PID_settings(pid_settings)
         elif message_type_id == GyroCalibration.MESSAGE_TYPE_ID:
 
@@ -137,7 +155,25 @@ class DLReceiver:
             elif GyroCalibration.decode_payload(payload) == 20:  # stop Calibration
                 self.aplink_manager.attitude.gyro_calibration(True)
                 logger.info("Gyro Calibration Completed")
+
         elif message_type_id == SendPIDSettings.MESSAGE_TYPE_ID:
             logger.info("Send PID Request Received")
             self.aplink_manager.new_message_from_key(ReadPID.MESSAGE_KEY)
             logger.info("PID Settings Sent")
+
+        elif message_type_id == SaveTxCalibration.MESSAGE_TYPE_ID:
+            tx_settings = SaveTxCalibration.decode_payload(payload)
+            logger.info("Save Tx Settings Received: {}".format(tx_settings))
+            # gc.collect()
+
+            # config = load_config_file("config.json")
+            # config['rcRadio']['channels_min'] = tx_settings[0]
+            # config['rcRadio']['channels_max'] = tx_settings[1]
+            # config['rcRadio']['channels_center'] = tx_settings[2]
+            # save_config_file("config.json", config)
+            # Release the memory
+            # config = None
+            # gc.collect()
+
+
+
