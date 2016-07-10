@@ -23,12 +23,12 @@ THE SOFTWARE.
 # import micropython
 import pyb
 import gc
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
 from aplink.aplink_manager import APLinkManager
 from attitude.attitude_controller import AttitudeController
 from attitude.esc_controller import EscController
 from config.config_file_manager import ConfigFileManager
-from util.airpy_config_utils import load_config_file
+from utils.airpy_config_utils import load_config_file
 from receiver.rc_controller import RCController
 
 

@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import struct
+import ustruct
 
 
 class SavePIDSettings:
@@ -40,6 +40,6 @@ class SavePIDSettings:
         pid_settings = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
         for i in range(0, 8):
-            pid_settings[i] = struct.unpack('>f', payload[i*4:i*4 + 4])[0]
+            pid_settings[i] = ustruct.unpack('>f', payload[i*4:i*4 + 4])[0]
 
         return pid_settings

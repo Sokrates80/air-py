@@ -23,9 +23,9 @@ THE SOFTWARE.
 import struct
 
 
-class SaveTxCenter:
+class SaveTxCalibration:
 
-    MESSAGE_TYPE_ID = 130
+    MESSAGE_TYPE_ID = 110
 
     def __init__(self):
         pass
@@ -35,14 +35,23 @@ class SaveTxCenter:
         """
         Decode message payload
         :param payload: byte stream representing the message payload
-        :return: an array of N integer representing the PWM value the N active channels
-         [<ch1 pwm value>,<ch2 pwm value>,<ch3 pwm value>,....,<chN pwm value>]
+        :return: a list of 3 list of integers representing the PWM threshold values for each of the N active channels
+         [<min threshold values>,<max threshold values>, <center threshold values>]
         """
 
-        # TODO: Generlize for N channels
-        pid_settings = [0, 0, 0, 0]
+        # 4 byte per integer * 3 set of thesholds
+        byte_per_thd_set = int(len(payload)/3)
+        min_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+        max_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+        center_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
 
-        for i in range(0, 4):
-            pid_settings[i] = struct.unpack('>i', payload[i*4:i*4 + 4])[0]
+        for i in range(0, int(byte_per_thd_set/4)):
+            min_thd_vals[i] = struct.unpack('>i', payload[i*4:i*4 + 4])[0]
 
-        return pid_settings
+        for i in range(0, int(byte_per_thd_set/4)):
+            max_thd_vals[i] = struct.unpack('>i', payload[byte_per_thd_set + i*4:i*4 + 4 + byte_per_thd_set])[0]
+
+        for i in range(0, int(byte_per_thd_set/4)):
+            center_thd_vals[i] = struct.unpack('>i', payload[2*byte_per_thd_set + i*4:i*4 + 2*byte_per_thd_set + 4])[0]
+
+        return [min_thd_vals, max_thd_vals, center_thd_vals]

@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-from util.airpy_config_utils import save_config_file, load_config_file
+from utils.airpy_config_utils import save_config_file, load_config_file
 
 
 class EnableEscCalibration:

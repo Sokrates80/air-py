@@ -23,7 +23,7 @@ THE SOFTWARE.
 
 import pyb
 import array
-import util.airpy_logger as logger
+# import util.airpy_logger as logger
 from receiver.sbus_receiver import SBUSReceiver
 
 
@@ -60,7 +60,10 @@ class RCController:
         self.pitch_ch_index = 2
         self.roll_ch_index = 1
 
-        logger.info("RCController Started")
+        # release memory
+        config_m = None
+
+     #   logger.info("RCController Started")
 
     def update_rx_data(self):
         self.rcCtrl.get_new_data()

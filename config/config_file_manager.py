@@ -21,8 +21,8 @@ THE SOFTWARE.
 """
 
 from config.config_file_generator import ConfigFileGenerator
-from util.airpy_config_utils import load_config_file, save_config_file
-import util.airpy_logger as logger
+from utils.airpy_config_utils import load_config_file, save_config_file
+import utils.airpy_logger as logger
 
 
 class ConfigFileManager:

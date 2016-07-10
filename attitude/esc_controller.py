@@ -21,7 +21,7 @@ THE SOFTWARE.
 """
 
 from pyb import Pin, Timer
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
 import array
 
 

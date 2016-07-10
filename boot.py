@@ -22,9 +22,9 @@ THE SOFTWARE.
 
 # boot.py -- run on boot-up
 
-import machine
+# import machine
 import pyb
-from util.airpy_config_utils import save_config_file, load_config_file
+from utils.airpy_config_utils import save_config_file, load_config_file
 
 config = load_config_file("app_config.json")
 config['serial_only'] = False
@@ -37,9 +37,10 @@ if config['esc_calibration_mode']:  # if esc calibration is true set esc_calibra
     boot_delay = 0  # avoid the boot delay to proceed with esc calibration
 else:
     pyb.main('main.py')  # if esc calibration is false set main script to run after this one
+    # pyb.main('./aplink/test/test_ap_save_tx_settings.py')  # TEST
 
 pyb.LED(3).on()                 # indicate we are waiting for switch press
-pyb.delay(boot_delay)                 # wait for user to maybe press the switch
+pyb.delay(boot_delay)           # wait for user to maybe press the switch
 switch_value = pyb.Switch()()   # sample the switch at end of delay
 pyb.LED(3).off()                # indicate that we finished waiting for the switch
 

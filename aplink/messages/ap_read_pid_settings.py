@@ -21,7 +21,7 @@ THE SOFTWARE.
 """
 
 import struct
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
 
 
 class ReadPID:

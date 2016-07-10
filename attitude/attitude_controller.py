@@ -21,7 +21,7 @@ THE SOFTWARE.
 """
 
 # import sys
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
 from fusion.fusion import Fusion
 from imu.mpu9150 import MPU9150
 from pid.pid import PID

@@ -22,11 +22,11 @@ THE SOFTWARE.
 
 import ujson
 
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
 from aplink.header_builder import HeaderBuilder
 from aplink.ul_scheduler import ULScheduler
 from aplink.dl_receiver import DLReceiver
-from util.airpy_byte_streamer import airpy_byte_streamer
+from utils.airpy_byte_streamer import airpy_byte_streamer
 
 # Import message classes TODO import class dynamically based on the json config file
 from aplink.messages.ap_heartbeat import Heartbeat
@@ -87,6 +87,9 @@ class APLinkManager:
             'ReadPID': ReadPID
         }
         logger.info("aplink stack loaded successfully")
+
+        # free memory
+        self.aplink_config = None
 
     def load_aplink_config(self):
         """

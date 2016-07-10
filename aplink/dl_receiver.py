@@ -20,7 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import util.airpy_logger as logger
+import utils.airpy_logger as logger
+# import gc
+from utils.airpy_config_utils import save_config_file, load_config_file
+
+# messages import
 from aplink.messages.ap_enable_message import EnableMessage
 from aplink.messages.ap_disable_message import DisableMessage
 from aplink.messages.ap_enable_esc_calibration import EnableEscCalibration
@@ -28,10 +32,7 @@ from aplink.messages.ap_save_pid_settings import SavePIDSettings
 from aplink.messages.ap_read_pid_settings import ReadPID
 from aplink.messages.ap_send_pid_settings import SendPIDSettings
 from aplink.messages.ap_gyro_calibration import GyroCalibration
-from aplink.messages.ap_save_tx_max import SaveTxMax
-from aplink.messages.ap_save_tx_min import SaveTxMin
-from aplink.messages.ap_save_tx_center import SaveTxCenter
-from util.airpy_config_utils import save_config_file, load_config_file
+from aplink.messages.ap_save_tx_calibration import SaveTxCalibration
 
 
 class DLReceiver:
@@ -160,12 +161,19 @@ class DLReceiver:
             self.aplink_manager.new_message_from_key(ReadPID.MESSAGE_KEY)
             logger.info("PID Settings Sent")
 
-        elif message_type_id == SaveTxMax.MESSAGE_TYPE_ID:
-            logger.info("Save Tx Max Request Received")
+        elif message_type_id == SaveTxCalibration.MESSAGE_TYPE_ID:
+            tx_settings = SaveTxCalibration.decode_payload(payload)
+            logger.info("Save Tx Settings Received: {}".format(tx_settings))
+            # gc.collect()
 
-        elif message_type_id == SaveTxMin.MESSAGE_TYPE_ID:
-            logger.info("Save Tx Min Request Received")
+            # config = load_config_file("config.json")
+            # config['rcRadio']['channels_min'] = tx_settings[0]
+            # config['rcRadio']['channels_max'] = tx_settings[1]
+            # config['rcRadio']['channels_center'] = tx_settings[2]
+            # save_config_file("config.json", config)
+            # Release the memory
+            # config = None
+            # gc.collect()
 
-        elif message_type_id == SaveTxCenter.MESSAGE_TYPE_ID:
-            logger.info("Save Tx Center Request Received")
+
 
