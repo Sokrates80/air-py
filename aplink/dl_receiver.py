@@ -163,17 +163,12 @@ class DLReceiver:
 
         elif message_type_id == SaveTxCalibration.MESSAGE_TYPE_ID:
             tx_settings = SaveTxCalibration.decode_payload(payload)
-            logger.info("Save Tx Settings Received: {}".format(tx_settings))
-            # gc.collect()
+            # logger.info("Save Tx Settings Received")
+            config = load_config_file("config.json")
+            config['rcRadio']['channels_min'] = tx_settings[0]
+            config['rcRadio']['channels_max'] = tx_settings[1]
+            config['rcRadio']['channels_center'] = tx_settings[2]
+            save_config_file("config.json", config)
 
-            # config = load_config_file("config.json")
-            # config['rcRadio']['channels_min'] = tx_settings[0]
-            # config['rcRadio']['channels_max'] = tx_settings[1]
-            # config['rcRadio']['channels_center'] = tx_settings[2]
-            # save_config_file("config.json", config)
             # Release the memory
-            # config = None
-            # gc.collect()
-
-
-
+            config = None

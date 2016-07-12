@@ -35,23 +35,23 @@ class SaveTxCalibration:
         """
         Decode message payload
         :param payload: byte stream representing the message payload
-        :return: a list of 3 list of integers representing the PWM threshold values for each of the N active channels
-         [<min threshold values>,<max threshold values>, <center threshold values>]
+        :return: a list of 3 list of floats representing the PWM threshold values for each of the N active channels
+         [[min threshold values],[max threshold values], [center threshold values]]
         """
 
-        # 4 byte per integer * 3 set of thesholds
+        # 4 byte per float * 3 set of thesholds
         byte_per_thd_set = int(len(payload)/3)
-        min_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
-        max_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
-        center_thd_vals = [0 for i in range(0, int(byte_per_thd_set/4))]
+        min_thd_vals = [0.0 for i in range(0, int(byte_per_thd_set/4))]
+        max_thd_vals = [0.0 for i in range(0, int(byte_per_thd_set/4))]
+        center_thd_vals = [0.0 for i in range(0, int(byte_per_thd_set/4))]
 
         for i in range(0, int(byte_per_thd_set/4)):
-            min_thd_vals[i] = struct.unpack('>i', payload[i*4:i*4 + 4])[0]
+            min_thd_vals[i] = struct.unpack('>f', payload[i*4:i*4 + 4])[0]
 
         for i in range(0, int(byte_per_thd_set/4)):
-            max_thd_vals[i] = struct.unpack('>i', payload[byte_per_thd_set + i*4:i*4 + 4 + byte_per_thd_set])[0]
+            max_thd_vals[i] = struct.unpack('>f', payload[byte_per_thd_set + i*4:i*4 + 4 + byte_per_thd_set])[0]
 
         for i in range(0, int(byte_per_thd_set/4)):
-            center_thd_vals[i] = struct.unpack('>i', payload[2*byte_per_thd_set + i*4:i*4 + 2*byte_per_thd_set + 4])[0]
+            center_thd_vals[i] = struct.unpack('>f', payload[2*byte_per_thd_set + i*4:i*4 + 2*byte_per_thd_set + 4])[0]
 
         return [min_thd_vals, max_thd_vals, center_thd_vals]
